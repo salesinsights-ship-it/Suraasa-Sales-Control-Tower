@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="https://assets.suraasa.com/logos/v2/mini.png">
+<title>Suraasa Sales Control Tower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Suraasa design tokens. Values read from the live suraasa.com styles (Nov 2026). */
+  --ink:#0f172a;        /* headings, primary buttons, active nav */
+  --ink2:#334155;       /* body text */
+  --ink3:#475569;
+  --muted:#64748b;      /* secondary text */
+  --faint:#9e9faa;      /* placeholders, disabled */
+  --bg:#f8f9fa;         /* page background */
+  --panel:#ffffff;      /* cards, sidebar, modals */
+  --panel2:#f7f6f5;     /* warm inset surface */
+  --line:#e1e2e7;       /* borders */
+  --line2:#eef0f3;      /* row dividers */
+  --primary:#0f172a; --primary-h:#1e293b;
+  --brand:#225ba5;      /* Suraasa blue: links, focus, in-progress */
+  --brand-d:#1b4a88; --brand-l:#eaf1fa; --sky:#bfdbfe; --lime:#c2eb8a;
+  --green:#2f7d32; --green-l:#eaf6e1; --amber:#b45309; --amber-l:#fdf3e1; --red:#b42318; --red-l:#fdecea;
+  --slate-l:#f1f5f9; --violet:#5b3fb5; --violet-l:#f0ecfb;
+  --r:12px; --r-sm:10px; --r-xs:8px;
+  --sh:0 1px 2px rgba(15,23,42,.04); --sh-2:0 8px 24px rgba(15,23,42,.08);
+  --side:#ffffff; --side2:#f1f5f9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.025em;color:var(--ink)}
+body{-webkit-font-smoothing:antialiased}
+::placeholder{color:var(--faint)}
+.app{display:flex;min-height:100vh}
+.side{width:240px;background:var(--side);color:var(--ink2);border-right:1px solid var(--line);flex:none;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{padding:18px 16px 16px;border-bottom:1px solid var(--line2);display:flex;gap:10px;align-items:center}
+.brand img{width:36px;height:36px;border-radius:9px;object-fit:contain;flex:none}
+.brand b{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.01em;line-height:1.2}
+.brand .wm{display:block;height:15px;width:auto;color:var(--ink);margin-bottom:5px}
+.nav{padding:10px;flex:1;overflow:auto}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink2);padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;text-align:left;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s}
+.nav button:hover{background:var(--side2);color:var(--ink)}
+.nav button.on{background:var(--primary);color:#fff}
+.nav svg{width:17px;height:17px;flex:none;opacity:.9}
+.nav .count{margin-left:auto;background:var(--red);color:#fff;border-radius:99px;font-size:11px;padding:0 7px;line-height:18px;font-weight:600}
+.who{padding:12px 14px 12px;border-top:1px solid var(--line2)}
+.who .p{display:flex;gap:10px;align-items:center}
+.who .p div{min-width:0}
+.who b{display:block;color:var(--ink);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{color:var(--muted);font-size:11px}
+.who .links{display:flex;gap:6px;margin-top:9px}
+.who .links button{flex:1;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:var(--r-xs);padding:6px 4px;font-size:11.5px;font-weight:500;cursor:pointer;transition:background .15s}
+.who .links button:hover{background:var(--side2);color:var(--ink)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top h1{font-size:19px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .menu-btn{display:none}
+.sync{font-size:12px;color:var(--muted);white-space:nowrap}
+#bar{position:fixed;left:0;top:0;height:2px;background:var(--ink);width:0;z-index:99;transition:width .25s}
+#bar.on{width:82%;transition:width 5s cubic-bezier(.1,.7,.2,1)}
+.content{padding:22px 26px 60px;max-width:1380px;width:100%}
+.btn{border:1px solid var(--line);background:#fff;border-radius:var(--r-sm);padding:7px 14px;cursor:pointer;font-weight:500;color:var(--ink);transition:background .15s,border-color .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#f8fafc;border-color:#cbd5e1}
+.btn.pri{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.pri:hover{background:var(--primary-h);border-color:var(--primary-h)}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ghost{border-color:transparent;background:none;padding:5px 8px;color:var(--ink2)}
+.btn.ghost:hover{background:var(--slate-l)}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.btn.block{width:100%;padding:12px 16px;border-radius:var(--r);font-size:15px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.red-t{color:var(--red)}
+.btn:focus-visible,.nav button:focus-visible,a:focus-visible,.pcard:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpis.k8{grid-template-columns:repeat(4,1fr)}
+@media (min-width:1500px){.kpis.k8{grid-template-columns:repeat(8,1fr)}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;box-shadow:var(--sh)}
+.kpi small{color:var(--muted);font-size:12.5px;font-weight:500}
+.kpi b{display:block;font-size:28px;font-weight:700;letter-spacing:-.04em;color:var(--ink);line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi{position:relative}
+.kpi[class*=t-]:after{content:"";position:absolute;right:14px;top:16px;width:8px;height:8px;border-radius:50%}
+.kpi.t-red:after{background:var(--red)} .kpi.t-green:after{background:var(--green)} .kpi.t-blue:after{background:var(--brand)} .kpi.t-amber:after{background:#d97706}
+.kpi.t-red b{color:var(--red)}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.cols3{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;min-width:0;box-shadow:var(--sh)}
+.card h3{font-size:14.5px;margin-bottom:14px;letter-spacing:-.015em}
+.card h3 small{font-weight:400;color:var(--muted);margin-left:6px}
+.sec{margin-top:16px}
+.sec-h{display:flex;align-items:center;gap:10px;margin:22px 0 10px;flex-wrap:wrap}
+.sec-h h2{font-size:16px;flex:1}
+.welcome{margin-bottom:16px}
+.welcome h2{font-size:26px;letter-spacing:-.035em}
+.welcome p{margin:3px 0 0;color:var(--muted)}
+.empty{color:var(--muted);padding:18px 4px;text-align:center;font-size:13px}
+.bars .row{display:grid;grid-template-columns:minmax(90px,34%) 1fr 44px;gap:10px;align-items:center;margin:7px 0;font-size:13px}
+.bars .row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2)}
+.bars .row em{font-style:normal;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:7px;background:#eceef2;border-radius:99px;overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px;background:var(--brand)}
+.prog{display:flex;align-items:center;gap:8px;min-width:110px}
+.prog .track{flex:1}
+.prog em{font-style:normal;font-size:12px;color:var(--muted);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.donut{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.legend{display:grid;gap:5px;font-size:13px}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend b{margin-left:auto;padding-left:14px;font-weight:600}
+.item{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line2);cursor:pointer;min-width:0}
+.item:last-child{border-bottom:0}
+.item:hover .t{color:var(--brand)}
+.item .grow{flex:1;min-width:0}
+.item .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item small{color:var(--muted);font-size:12px;display:block}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.tools input[type=search],.tools select{border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 11px;background:#fff;min-width:0;color:var(--ink)}
+.tools input[type=search]{flex:1;min-width:180px;max-width:320px}
+.tools .sp{flex:1}
+.tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:auto;box-shadow:var(--sh)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--bg)}
+th[data-sort]{cursor:pointer;user-select:none}
+th[data-sort]:hover{color:var(--ink)}
+th .arr{display:inline-block;width:10px;margin-left:3px;color:var(--brand)}
+td{padding:12px 14px;border-bottom:1px solid var(--line2);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--bg)}
+td .t{font-weight:500}
+td small{color:var(--muted);display:block;font-size:12px}
+td.act{white-space:nowrap;text-align:right}
+td.num{font-variant-numeric:tabular-nums}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;color:var(--muted);font-size:13px}
+.badge{display:inline-block;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:500;white-space:nowrap;background:var(--slate-l);color:var(--ink2)}
+.b-blue{background:var(--brand-l);color:var(--brand)} .b-green{background:var(--green-l);color:var(--green)}
+.b-amber{background:var(--amber-l);color:var(--amber)} .b-red{background:var(--red-l);color:var(--red)}
+.b-violet{background:var(--violet-l);color:var(--violet)} .b-gray{background:#f1f5f9;color:#475569}
+.badge{font-weight:600;font-size:11.5px;padding:3px 10px}
+.late{color:var(--red);font-weight:500}
+.av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:#fff;flex:none;border:2px solid #fff}
+.av.lg{width:36px;height:36px;font-size:13px;border-color:transparent}
+.avs{display:inline-flex}
+.avs .av{margin-left:-7px}
+.avs .av:first-child{margin-left:0}
+.avs .more{background:#e2e8f0;color:#475569}
+.person{display:flex;align-items:center;gap:8px;min-width:0}
+.person span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcards{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh);min-width:0}
+.pcard{transition:border-color .15s,box-shadow .15s,transform .15s}
+.pcard:hover{border-color:#c9ccd4;box-shadow:var(--sh-2);transform:translateY(-1px)}
+.pcard .hd{display:flex;gap:8px;align-items:flex-start}
+.pcard .hd b{flex:1;font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.pcard .sub{color:var(--muted);font-size:12.5px}
+.pcard .ft{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.pcard .ft .sp{flex:1}
+.crumb{display:flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--muted);font-size:13px}
+.hero{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.hero .grow{flex:1;min-width:240px}
+.hero h2{font-size:26px;letter-spacing:-.035em;margin-bottom:8px}
+.hero .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px}
+dl.facts{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;margin:0;font-size:13.5px}
+dl.facts dt{color:var(--muted)}
+dl.facts dd{margin:0;min-width:0;overflow-wrap:anywhere}
+dl.facts dd small{margin-left:6px;color:var(--muted)}
+.pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-color:var(--ink)}
+.tabs button span{background:var(--slate-l);border-radius:99px;font-size:11px;padding:1px 7px;margin-left:5px;color:var(--ink2)}
+.hist .h{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px}
+.hist .h:last-child{border-bottom:0}
+.hist .dot{width:7px;height:7px;border-radius:50%;background:var(--ink);margin-top:7px;box-shadow:0 0 0 3px var(--slate-l)}
+.hist small{color:var(--muted);display:block}
+.hist .d{color:var(--ink2);overflow-wrap:anywhere}
+.hist .d s{color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px);animation:fade .15s ease-out;display:flex;align-items:flex-start;justify-content:center;padding:4vh 14px;z-index:50;overflow:auto}
+.modal{animation:pop .16s ease-out;background:#fff;border-radius:16px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(15,23,42,.3);display:flex;flex-direction:column}
+.modal.wide{max-width:860px}
+.modal.narrow{max-width:480px}
+.m-h{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.m-h h2{font-size:16px;flex:1}
+.m-b{padding:18px 20px}
+.m-f{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.form .full{grid-column:1/-1}
+.fld label,.lbl{display:block;font-size:12.5px;font-weight:500;color:var(--ink2);margin-bottom:4px}
+.fld label i{color:var(--red);font-style:normal}
+.fld input,.fld select,.fld textarea{width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.fld textarea{min-height:70px;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus,.tools input:focus,.tools select:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px rgba(191,219,254,.7)}
+.fld input[readonly]{background:#f8fafc;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:3px}
+.picker{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.picker input.q{border:0;border-bottom:1px solid var(--line);border-radius:0;width:100%;padding:7px 10px}
+.picker .opts{max-height:150px;overflow:auto;padding:4px}
+.pick{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer;font-weight:400}
+.pick:hover{background:#f8fafc}
+.pick input{width:auto}
+.pick small{color:var(--muted);margin-left:auto;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50%}
+.warn{background:var(--amber-l);border:1px solid #f2d9a6;color:#7c4a03;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.dangerbox{background:var(--red-l);border:1px solid #f5c6c6;color:#7f1d1d;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.okbox{background:var(--green-l);border:1px solid #bfe3c9;color:#14532d;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.radio{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;cursor:pointer}
+.radio input{margin-top:3px}
+.radio b{display:block;font-weight:500}
+.radio small{color:var(--muted)}
+.cmt{padding:9px 0;border-bottom:1px solid var(--line2)}
+.cmt:last-child{border-bottom:0}
+.cmt b{font-weight:600;font-size:13px}
+.cmt small{color:var(--muted);margin-left:6px}
+.update{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:14px 0}
+.update .rowf{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.update input[type=range]{width:100%}
+.toasts{position:fixed;right:18px;bottom:18px;display:grid;gap:8px;z-index:100}
+.toast{animation:pop .16s ease-out;background:#0f172a;color:#fff;padding:11px 15px;border-radius:var(--r-sm);font-size:13px;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.err{background:var(--red)}
+.unread td{background:var(--brand-l)}
+.unread .t{font-weight:600}
+code{background:var(--slate-l);border-radius:4px;padding:1px 5px;font-size:12.5px}
+/* sign-in */
+.auth{min-height:100vh;display:grid;grid-template-columns:minmax(320px,1fr) minmax(360px,1fr)}
+.auth-l{background:radial-gradient(60% 45% at 18% 8%,rgba(255,196,160,.85),rgba(255,196,160,0) 70%),radial-gradient(55% 40% at 85% 0%,rgba(255,214,186,.7),rgba(255,214,186,0) 70%),linear-gradient(180deg,#8fb0cf 0%,#6f98bf 45%,#4f7ba6 100%);color:#fff;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;gap:30px}
+.auth-l .logo{display:flex;align-items:center;gap:12px}
+.auth-l .logo img{width:46px;height:46px;border-radius:10px;object-fit:contain;box-shadow:0 2px 10px rgba(15,23,42,.18)}
+.auth-l .logo .wm{display:block;height:20px;width:auto;color:#fff;margin-bottom:6px}
+.auth-l .logo b{display:block;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.9);letter-spacing:.01em}
+.auth-l h2{font-size:44px;line-height:1.08;font-weight:700;max-width:520px;letter-spacing:-.04em;color:#fff;text-shadow:0 1px 18px rgba(30,58,95,.25)}
+.auth-l ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px;color:rgba(255,255,255,.92);font-size:15.5px;max-width:440px}
+.auth-l li{padding-left:22px;position:relative}
+.auth-l li:before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%;background:#fff}
+.auth-l small{color:rgba(255,255,255,.8);font-size:12.5px}
+.auth-r{display:flex;align-items:center;justify-content:center;padding:32px 20px;background:#fff}
+.auth-card{width:100%;max-width:400px;background:#fff;padding:8px 4px}
+.auth-card h1{font-size:30px;letter-spacing:-.04em;margin-bottom:6px}
+.auth-card p.sub{margin:0 0 24px;color:var(--muted);font-size:15px}
+.auth-card .fld{margin-bottom:14px}
+.auth-card .fld input{padding:12px 14px;border-radius:var(--r);font-size:15px}
+.pw{position:relative}
+.pw input{padding-right:64px !important}
+.pw button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--ink2);font-size:12.5px;font-weight:500;cursor:pointer;padding:6px}
+.auth-card .err{background:var(--red-l);color:#7f1d1d;border:1px solid #f5c6c6;border-radius:8px;padding:9px 11px;font-size:13px;margin-bottom:14px}
+.auth-card .foot{margin-top:16px;text-align:center;font-size:13px}
+.auth-card .foot button{border:0;background:none;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-weight:500;padding:4px}
+.rules{font-size:12.5px;color:var(--muted);margin:-6px 0 14px;display:grid;gap:2px}
+.rules span.ok{color:var(--green)}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes shimmer{to{background-position:-200% 0}}
+.sk{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef0f3 25%,#f7f8fa 37%,#eef0f3 63%);background-size:200% 100%;animation:shimmer 1.2s linear infinite;margin:10px 0}
+.sk.lg{height:26px;width:55%} .sk.w40{width:40%} .sk.w60{width:60%} .sk.w80{width:80%} .sk.tile{height:74px;margin:0;border-radius:var(--r)} .sk.block{height:190px;margin:0;border-radius:var(--r)}
+.skwrap{padding:4px 2px}
+.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--muted);gap:10px}
+.loading .spin{border-color:#cbd5e1;border-top-color:var(--brand)}
+@media (prefers-reduced-motion:reduce){.spin,.sk,.modal,.overlay,.toast{animation:none}#bar,.btn,.pcard,.nav button{transition:none}.pcard:hover{transform:none}}
+@media (max-width:860px){
+  .side{position:fixed;left:-250px;z-index:40;transition:left .2s}
+  .side.open{left:0;box-shadow:0 0 0 100vmax rgba(15,23,42,.4)}
+  .top .menu-btn{display:inline-flex}
+  .top{padding:12px 14px}
+  .sync{display:none}
+  .content{padding:16px 14px 60px}
+  .form{grid-template-columns:1fr}
+  dl.facts{grid-template-columns:100px 1fr}
+  .auth{grid-template-columns:1fr}
+  .auth-l{padding:26px 22px;gap:14px}
+  .auth-l h2{font-size:24px}
+  .auth-card h1{font-size:26px}
+  .auth-l ul,.auth-l small{display:none}
+  .kpis,.kpis.k8{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="root"><div class="loading"><span class="spin"></span>Loading…</div></div>
+<div class="toasts" id="toasts"></div>
+<div id="modal"></div>
+
+<script>
+(function () {
+'use strict';
+var LOGO = 'https://assets.suraasa.com/logos/v2/mini.webp';
+/* Official Suraasa wordmark (the vector used in the suraasa.com header). */
+var WORD = '<svg class="wm" viewBox="0 0 54 12" role="img" aria-label="Suraasa" fill="currentColor" fill-rule="evenodd"><path d="M49.48 11.61C48.96 11.61 48.49 11.52 48.08 11.34C47.67 11.15 47.34 10.88 47.10 10.52C46.86 10.15 46.74 9.70 46.74 9.16C46.74 8.70 46.83 8.32 46.99 8.01C47.17 7.71 47.40 7.46 47.69 7.28C47.98 7.09 48.31 6.95 48.68 6.85C49.05 6.76 49.44 6.69 49.84 6.65C50.32 6.60 50.71 6.56 51.00 6.51C51.30 6.47 51.51 6.40 51.64 6.32C51.78 6.23 51.85 6.09 51.85 5.92V5.88C51.85 5.51 51.73 5.23 51.51 5.02C51.29 4.82 50.96 4.72 50.54 4.72C50.10 4.72 49.75 4.82 49.49 5.01C49.24 5.20 49.06 5.43 48.97 5.71L47.02 5.50C47.15 5.00 47.37 4.58 47.69 4.23C48.01 3.88 48.41 3.61 48.89 3.43C49.38 3.24 49.93 3.15 50.54 3.15C50.97 3.15 51.39 3.20 51.79 3.30C52.19 3.40 52.56 3.56 52.88 3.78C53.21 3.99 53.47 4.28 53.66 4.64C53.85 5.00 53.95 5.43 53.95 5.95V11.45H51.94V10.32H51.88C51.75 10.57 51.58 10.78 51.37 10.98C51.15 11.18 50.89 11.33 50.57 11.44C50.26 11.56 49.89 11.61 49.48 11.61ZM50.05 10.12C50.42 10.12 50.73 10.05 51.00 9.91C51.27 9.76 51.48 9.57 51.63 9.33C51.78 9.08 51.86 8.81 51.86 8.52V7.60C51.79 7.65 51.69 7.69 51.56 7.73C51.43 7.77 51.28 7.81 51.11 7.84C50.95 7.87 50.78 7.90 50.62 7.92C50.45 7.95 50.31 7.97 50.18 7.99C49.90 8.02 49.66 8.09 49.44 8.18C49.23 8.26 49.06 8.38 48.94 8.54C48.82 8.68 48.76 8.88 48.76 9.11C48.76 9.44 48.88 9.69 49.12 9.86C49.37 10.04 49.68 10.12 50.05 10.12Z"/><path d="M46.03 5.51L44.11 5.67C44.06 5.49 43.98 5.33 43.86 5.18C43.74 5.03 43.59 4.90 43.39 4.82C43.19 4.72 42.95 4.68 42.67 4.68C42.29 4.68 41.97 4.76 41.72 4.92C41.46 5.08 41.33 5.29 41.33 5.55C41.33 5.77 41.42 5.95 41.58 6.09C41.75 6.23 42.03 6.35 42.43 6.44L43.87 6.74C44.66 6.90 45.24 7.16 45.63 7.53C46.02 7.89 46.21 8.37 46.21 8.96C46.21 9.48 46.06 9.95 45.75 10.34C45.45 10.74 45.02 11.05 44.49 11.28C43.95 11.50 43.33 11.61 42.63 11.61C41.59 11.61 40.76 11.40 40.13 10.96C39.50 10.52 39.13 9.92 39.02 9.15L41.08 9.00C41.15 9.35 41.33 9.61 41.59 9.79C41.86 9.98 42.21 10.07 42.63 10.07C43.07 10.07 43.41 9.98 43.67 9.81C43.93 9.64 44.06 9.42 44.06 9.16C44.06 8.94 43.98 8.76 43.80 8.62C43.62 8.47 43.35 8.36 42.99 8.28L41.58 8.00C40.78 7.83 40.20 7.56 39.81 7.16C39.43 6.77 39.24 6.27 39.24 5.67C39.24 5.15 39.38 4.71 39.66 4.33C39.95 3.95 40.34 3.66 40.85 3.46C41.36 3.25 41.96 3.15 42.63 3.15C43.63 3.15 44.42 3.36 44.99 3.79C45.57 4.21 45.91 4.78 46.03 5.51Z"/><path d="M33.66 11.61C33.14 11.61 32.67 11.52 32.26 11.34C31.84 11.15 31.52 10.88 31.28 10.52C31.04 10.15 30.92 9.70 30.92 9.16C30.92 8.70 31.01 8.32 31.17 8.01C31.34 7.71 31.58 7.46 31.87 7.28C32.16 7.09 32.49 6.95 32.86 6.85C33.23 6.76 33.62 6.69 34.02 6.65C34.50 6.60 34.89 6.56 35.18 6.51C35.48 6.47 35.69 6.40 35.82 6.32C35.96 6.23 36.02 6.09 36.02 5.92V5.88C36.02 5.51 35.91 5.23 35.69 5.02C35.46 4.82 35.14 4.72 34.72 4.72C34.28 4.72 33.93 4.82 33.67 5.01C33.41 5.20 33.24 5.43 33.15 5.71L31.20 5.50C31.32 5.00 31.55 4.58 31.87 4.23C32.19 3.88 32.59 3.61 33.07 3.43C33.56 3.24 34.11 3.15 34.72 3.15C35.15 3.15 35.56 3.20 35.97 3.30C36.37 3.40 36.74 3.56 37.06 3.78C37.39 3.99 37.65 4.28 37.84 4.64C38.03 5.00 38.13 5.43 38.13 5.95V11.45H36.12V10.32H36.06C35.93 10.57 35.76 10.78 35.54 10.98C35.33 11.18 35.07 11.33 34.75 11.44C34.44 11.56 34.07 11.61 33.66 11.61ZM34.23 10.12C34.59 10.12 34.91 10.05 35.18 9.91C35.45 9.76 35.66 9.57 35.81 9.33C35.96 9.08 36.04 8.81 36.04 8.52V7.60C35.97 7.65 35.87 7.69 35.74 7.73C35.60 7.77 35.46 7.81 35.29 7.84C35.12 7.87 34.96 7.90 34.80 7.92C34.63 7.95 34.49 7.97 34.36 7.99C34.08 8.02 33.84 8.09 33.62 8.18C33.41 8.26 33.24 8.38 33.12 8.54C33.00 8.68 32.94 8.88 32.94 9.11C32.94 9.44 33.06 9.69 33.30 9.86C33.55 10.04 33.86 10.12 34.23 10.12Z"/><path d="M25.58 11.61C25.06 11.61 24.60 11.52 24.18 11.34C23.77 11.15 23.45 10.88 23.21 10.52C22.97 10.15 22.85 9.70 22.85 9.16C22.85 8.70 22.93 8.32 23.10 8.01C23.27 7.71 23.50 7.46 23.8 7.28C24.09 7.09 24.42 6.95 24.79 6.85C25.16 6.76 25.54 6.69 25.95 6.65C26.43 6.60 26.81 6.56 27.11 6.51C27.40 6.47 27.62 6.40 27.75 6.32C27.88 6.23 27.95 6.09 27.95 5.92V5.88C27.95 5.51 27.84 5.23 27.62 5.02C27.39 4.82 27.07 4.72 26.65 4.72C26.21 4.72 25.86 4.82 25.60 5.01C25.34 5.20 25.17 5.43 25.08 5.71L23.13 5.50C23.25 5.00 23.47 4.58 23.8 4.23C24.12 3.88 24.52 3.61 25.00 3.43C25.49 3.24 26.04 3.15 26.65 3.15C27.08 3.15 27.49 3.20 27.89 3.30C28.30 3.40 28.66 3.56 28.99 3.78C29.31 3.99 29.57 4.28 29.77 4.64C29.96 5.00 30.05 5.43 30.05 5.95V11.45H28.05V10.32H27.98C27.86 10.57 27.69 10.78 27.47 10.98C27.26 11.18 26.99 11.33 26.68 11.44C26.36 11.56 26.00 11.61 25.58 11.61ZM26.16 10.12C26.52 10.12 26.84 10.05 27.11 9.91C27.38 9.76 27.59 9.57 27.74 9.33C27.89 9.08 27.96 8.81 27.96 8.52V7.60C27.90 7.65 27.80 7.69 27.66 7.73C27.53 7.77 27.38 7.81 27.22 7.84C27.05 7.87 26.89 7.90 26.72 7.92C26.56 7.95 26.42 7.97 26.29 7.99C26.01 8.02 25.76 8.09 25.55 8.18C25.34 8.26 25.17 8.38 25.05 8.54C24.93 8.68 24.87 8.88 24.87 9.11C24.87 9.44 24.99 9.69 25.23 9.86C25.48 10.04 25.79 10.12 26.16 10.12Z"/><path d="M17.85 11.45V3.26H19.89V4.66H19.98C20.13 4.16 20.38 3.79 20.74 3.53C21.10 3.27 21.51 3.14 21.97 3.14C22.08 3.14 22.20 3.14 22.34 3.16C22.47 3.17 22.58 3.18 22.68 3.20V5.10C22.58 5.07 22.45 5.04 22.26 5.02C22.08 5.00 21.91 4.99 21.75 4.99C21.41 4.99 21.10 5.06 20.83 5.21C20.56 5.36 20.35 5.56 20.19 5.82C20.03 6.08 19.96 6.38 19.96 6.73V11.45H17.85Z"/><path d="M14.82 7.99V3.26H16.92V11.45H14.89V9.98H14.80C14.62 10.45 14.31 10.83 13.89 11.12C13.46 11.42 12.94 11.56 12.33 11.56C11.79 11.56 11.31 11.44 10.89 11.19C10.48 10.95 10.16 10.6 9.93 10.14C9.70 9.68 9.58 9.12 9.58 8.48V3.26H11.68V8.12C11.68 8.63 11.82 9.02 12.09 9.32C12.36 9.61 12.72 9.76 13.16 9.76C13.44 9.76 13.71 9.69 13.96 9.56C14.21 9.42 14.42 9.23 14.58 8.97C14.74 8.70 14.82 8.38 14.82 7.99Z"/><path d="M6.60 3.60C6.55 3.15 6.35 2.80 6.01 2.55C5.66 2.30 5.20 2.18 4.63 2.18C4.24 2.18 3.90 2.24 3.62 2.35C3.35 2.46 3.13 2.62 2.99 2.82C2.84 3.02 2.77 3.25 2.76 3.50C2.76 3.71 2.81 3.90 2.90 4.05C3.00 4.21 3.14 4.34 3.31 4.45C3.48 4.56 3.67 4.66 3.88 4.74C4.10 4.81 4.33 4.88 4.56 4.93L5.56 5.18C6.01 5.28 6.42 5.41 6.81 5.58C7.21 5.75 7.55 5.97 7.84 6.22C8.14 6.48 8.38 6.78 8.55 7.13C8.72 7.48 8.81 7.89 8.81 8.36C8.81 9.01 8.64 9.58 8.30 10.07C7.97 10.56 7.49 10.94 6.87 11.21C6.25 11.48 5.49 11.61 4.61 11.61C3.75 11.61 2.99 11.48 2.35 11.21C1.72 10.95 1.22 10.55 0.86 10.03C0.50 9.52 0.31 8.88 0.29 8.12H2.38C2.41 8.50 2.52 8.81 2.72 9.06C2.91 9.30 3.17 9.49 3.50 9.61C3.82 9.74 4.18 9.80 4.59 9.80C5.00 9.80 5.36 9.74 5.67 9.62C5.98 9.49 6.22 9.32 6.39 9.11C6.56 8.89 6.65 8.64 6.65 8.35C6.65 8.08 6.57 7.86 6.41 7.69C6.26 7.51 6.04 7.36 5.76 7.24C5.47 7.11 5.13 7.00 4.74 6.91L3.52 6.60C2.61 6.37 1.89 6.02 1.37 5.55C0.84 5.07 0.58 4.43 0.58 3.64C0.58 2.99 0.75 2.42 1.10 1.93C1.46 1.44 1.95 1.06 2.56 0.79C3.18 0.51 3.87 0.38 4.65 0.38C5.45 0.38 6.14 0.51 6.73 0.79C7.33 1.06 7.80 1.44 8.13 1.92C8.47 2.41 8.65 2.97 8.66 3.60H6.60Z"/></svg>';
+/* When this page is hosted outside Apps Script (GitHub + Vercel), it talks to the backend at this address. */
+var API_URL = window.SCT_API_URL || 'https://script.google.com/macros/s/AKfycbw1kzNACLgGnM9V3j_SgkW6m79vCMtPFHtcANKRVs3MRfkTouy1BHlDBlDZ1-pLiUNeOw/exec';
+var IN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+
+/* ---------- state ---------- */
+var S = { me: null, users: [], projects: [], tasks: [], recent: [], unread: 0, meta: {}, view: 'dashboard', param: null, syncedAt: 0,
+  f: { tasks: { sort: 'due', dir: 1, page: 1 }, projects: {}, logs: {}, emps: {}, ptab: 'all' },
+  logs: null, notifs: null, health: null, trash: null, accounts: null, phist: {}, perf: [] };
+var U = {}, P = {}, TOKEN = '';
+try { TOKEN = sessionStorage.getItem('sct_session') || ''; } catch (e) {}
+function setToken(t) { TOKEN = t || ''; try { if (TOKEN) sessionStorage.setItem('sct_session', TOKEN); else sessionStorage.removeItem('sct_session'); } catch (e) {} }
+
+var ICON = {
+  dashboard: '<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
+  projects: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  tasks: '<path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
+  mytasks: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  employees: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M16 5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 4 6"/>',
+  logs: '<path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/>',
+  notifications: '<path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 0 0 4 0"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.3l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2.2-1.3L14 3h-4l-.3 2.4a7 7 0 0 0-2.2 1.3l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .9.1 1.3l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2.2 1.3L10 21h4l.3-2.4a7 7 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.6c.1-.4.1-.9.1-1.3z"/>'
+};
+var NAV = [['dashboard', 'Dashboard'], ['projects', 'Projects'], ['tasks', 'Tasks'], ['mytasks', 'My Tasks'], ['employees', 'Employees', true],
+  ['logs', 'Activity Logs'], ['notifications', 'Notifications'], ['settings', 'Settings', true]];
+var TITLES = { dashboard: 'Dashboard', projects: 'Projects', project: 'Project workspace', tasks: 'Tasks', mytasks: 'My Tasks', employees: 'Employees',
+  logs: 'Activity Logs', notifications: 'Notifications', settings: 'Settings' };
+var TONE = { 'Pending': 'amber', 'Not Started': 'amber', 'In Progress': 'blue', 'Active': 'blue', 'On Hold': 'gray', 'Completed': 'green', 'Cancelled': '', 'Overdue': 'red',
+  'Low': 'gray', 'Medium': 'blue', 'High': 'amber', 'Critical': 'red', 'Super Admin': 'violet', 'Employee': 'gray',
+  'Inactive': '', 'Not invited': 'gray', 'Invited': 'blue', 'Invite expired': 'amber', 'Locked': 'red' };
+var HEX = { 'Pending': '#d97706', 'Not Started': '#d97706', 'In Progress': '#225ba5', 'Active': '#225ba5', 'On Hold': '#94a3b8', 'Completed': '#2f7d32', 'Cancelled': '#cbd5e1', 'Overdue': '#b42318',
+  'Low': '#94a3b8', 'Medium': '#225ba5', 'High': '#d97706', 'Critical': '#b42318' };
+var PRANK = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+var PAGE = 25;
+
+/* ---------- helpers ---------- */
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function fmt(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? Number(m[3]) + ' ' + MON[Number(m[2]) - 1] + ' ' + m[1] : ''; }
+function fmtT(d) { var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(d || ''); return m ? Number(m[3]) + ' ' + MON[Number(m[2]) - 1] + ', ' + m[4] + ':' + m[5] : fmt(d) || String(d || ''); }
+function dnum(d) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 864e5 : null; }
+function daysTo(d) { var a = dnum(d), b = dnum(S.meta.today); return a == null || b == null ? null : a - b; }
+function dueText(d, done) {
+  if (!d) return '<span style="color:var(--muted)">No date</span>';
+  var n = daysTo(d), s = esc(fmt(d));
+  if (done || n == null) return s;
+  if (n < 0) return '<span class="late">' + s + '</span><small class="late">' + (-n) + ' day' + (n === -1 ? '' : 's') + ' late</small>';
+  if (n === 0) return s + '<small>Due today</small>';
+  if (n <= 7) return s + '<small>in ' + n + ' day' + (n === 1 ? '' : 's') + '</small>';
+  return s;
+}
+function uname(e) { return U[e] ? U[e].name : (e || '—'); }
+function firstName(n) { return String(n || '').replace(/\(.*?\)/g, '').trim().split(/\s+/)[0] || ''; }
+function pname(id) { return P[id] ? P[id].name : (id ? id + ' (deleted)' : 'No project'); }
+function badge(v) { return '<span class="badge ' + (TONE[v] ? 'b-' + TONE[v] : '') + '">' + esc(v) + '</span>'; }
+function hue(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
+function av(e, lg) {
+  var name = U[e] ? U[e].name : (e || '?'), parts = name.replace(/\(.*?\)/g, '').trim().split(/\s+/);
+  var ini = ((parts[0] || '?').charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toUpperCase();
+  return '<span class="av' + (lg ? ' lg' : '') + '" style="background:hsl(' + hue(e || name) + ' 45% 42%)" title="' + esc(name) + '">' + esc(ini) + '</span>';
+}
+function avs(list, max) {
+  max = max || 4;
+  if (!list || !list.length) return '<span style="color:var(--muted)">—</span>';
+  var h = list.slice(0, max).map(function (e) { return av(e); }).join('');
+  if (list.length > max) h += '<span class="av more">+' + (list.length - max) + '</span>';
+  return '<span class="avs">' + h + '</span>';
+}
+function person(e) { return e ? '<span class="person">' + av(e) + '<span>' + esc(uname(e)) + '</span></span>' : '—'; }
+function prog(n, color) { n = Math.max(0, Math.min(100, Number(n) || 0)); return '<div class="prog"><div class="track"><i style="width:' + n + '%' + (color ? ';background:' + color : '') + '"></i></div><em>' + n + '%</em></div>'; }
+function opts(list, sel, blank) {
+  return (blank != null ? '<option value="">' + esc(blank) + '</option>' : '') + list.map(function (o) {
+    var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o;
+    return '<option value="' + esc(v) + '"' + (String(v) === String(sel == null ? '' : sel) ? ' selected' : '') + '>' + esc(l) + '</option>';
+  }).join('');
+}
+function kpi(label, value, tone) { return '<div class="kpi' + (tone ? ' t-' + tone : '') + '"><small>' + esc(label) + '</small><b>' + esc(value) + '</b></div>'; }
+function bars(items, emptyMsg) {
+  if (!items.length) return '<div class="empty">' + esc(emptyMsg || 'Nothing to show yet.') + '</div>';
+  var max = Math.max.apply(null, items.map(function (i) { return i.value; }).concat([1]));
+  return '<div class="bars">' + items.map(function (i) {
+    return '<div class="row"><span title="' + esc(i.label) + '">' + esc(i.label) + '</span><div class="track"><i style="width:' + (i.value / max * 100) + '%;background:' + (i.color || 'var(--brand)') + '"></i></div><em>' + esc(i.text == null ? i.value : i.text) + '</em></div>';
+  }).join('') + '</div>';
+}
+function donut(segs) {
+  var total = segs.reduce(function (a, s) { return a + s.value; }, 0), C = 2 * Math.PI * 42, off = 0;
+  var rings = segs.filter(function (s) { return s.value > 0; }).map(function (s) {
+    var len = s.value / total * C, h = '<circle cx="55" cy="55" r="42" fill="none" stroke="' + s.color + '" stroke-width="15" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 55 55)"/>';
+    off += len; return h;
+  }).join('');
+  return '<div class="donut"><svg width="110" height="110" viewBox="0 0 110 110" role="img" aria-label="Distribution"><circle cx="55" cy="55" r="42" fill="none" stroke="#e9eef5" stroke-width="15"/>' + rings +
+    '<text x="55" y="61" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">' + total + '</text></svg>' +
+    '<div class="legend">' + segs.map(function (s) { return '<span><i style="background:' + s.color + '"></i>' + esc(s.label) + '<b>' + s.value + '</b></span>'; }).join('') + '</div></div>';
+}
+function sk(n) { var w = ['w80', 'w60', 'w40'], h = '<div class="skwrap" aria-busy="true" aria-label="Loading">'; for (var i = 0; i < (n || 3); i++) h += '<span class="sk ' + w[i % 3] + '"></span>'; return h + '</div>'; }
+function count(list, fn) { var n = 0; list.forEach(function (x) { if (fn(x)) n++; }); return n; }
+function isOpen(t) { return t.status !== 'Completed' && t.status !== 'Cancelled'; }
+function mine(t) { return t.assignees.indexOf(S.me.email) > -1; }
+function byDue(a, b) { if (a.overdue !== b.overdue) return a.overdue ? -1 : 1; var x = a.dueDate || '9999', y = b.dueDate || '9999'; return x < y ? -1 : x > y ? 1 : 0; }
+function activeUsers() { return S.users.filter(function (u) { return u.status === 'Active'; }).sort(function (a, b) { return a.name.localeCompare(b.name); }); }
+function linksHtml(text) {
+  var lines = String(text || '').split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  if (!lines.length) return '—';
+  return lines.map(function (l) { return /^https?:\/\/\S+$/i.test(l) ? '<a href="' + esc(l) + '" target="_blank" rel="noopener noreferrer">' + esc(l) + '</a>' : esc(l); }).join('<br>');
+}
+function toast(msg, err) {
+  var d = document.createElement('div');
+  d.className = 'toast' + (err ? ' err' : ''); d.textContent = msg; d.setAttribute('role', err ? 'alert' : 'status');
+  $('#toasts').appendChild(d);
+  setTimeout(function () { d.remove(); }, err ? 7000 : 3000);
+}
+function rid() { return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+
+/* ---------- server ---------- */
+var busyN = 0;
+function busy(n) { busyN += n; $('#bar').className = busyN > 0 ? 'on' : ''; }
+function call(action, payload) {
+  return new Promise(function (resolve, reject) {
+    var t0 = Date.now();
+    busy(1);
+    var done = function (s) {
+      busy(-1);
+      var r; try { r = JSON.parse(s); } catch (e) { r = { ok: false, error: 'Unexpected reply from the server.' }; }
+      S.perf.unshift({ action: action, total: Date.now() - t0, server: r.ms == null ? null : r.ms, at: new Date().toTimeString().slice(0, 8) });
+      S.perf.length = Math.min(S.perf.length, 40);
+      if (r.ok) return resolve(r.data);
+      if (r.code === 'AUTH' && S.me) { setToken(''); S.me = null; closeModal(); showLogin(r.error); }
+      reject(r);
+    };
+    var failed = function () { busy(-1); reject({ ok: false, error: 'Could not reach the server. Check your connection and try again.' }); };
+    if (IN_GAS) google.script.run.withSuccessHandler(done).withFailureHandler(failed).api(action, payload || {}, TOKEN);
+    else fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload || {}, token: TOKEN }), redirect: 'follow', credentials: 'omit' })
+      .then(function (r) { return r.text(); }).then(done, failed);
+  });
+}
+function setState(st) {
+  S.me = st.me; S.users = st.users; S.projects = st.projects; S.tasks = st.tasks; S.unread = st.unread; S.recent = st.recent || []; S.meta = st.meta; S.syncedAt = Date.now();
+  U = {}; S.users.forEach(function (u) { U[u.email] = u; });
+  P = {}; S.projects.forEach(function (p) { P[p.id] = p; });
+}
+function dropCaches() { S.logs = null; S.notifs = null; S.trash = null; S.accounts = null; S.health = null; S.phist = {}; }
+function mutate(action, payload, msg) {
+  return call(action, payload).then(function (d) {
+    dropCaches();
+    if (d && d.state) setState(d.state);
+    if (msg) toast(msg);
+    return d ? d.result : null;
+  }, function (e) { if (e.code !== 'AUTH') toast(e.error || 'Could not save.', true); throw e; });
+}
+function refresh(fresh, quiet) {
+  return call('boot', { fresh: !!fresh }).then(function (st) { setState(st); dropCaches(); render(); if (!quiet) toast('Up to date'); }, function (e) { if (!quiet && e.code !== 'AUTH') toast(e.error, true); if (S.me) render(); });
+}
+
+/* ---------- sign-in screens ---------- */
+function authShell(inner) {
+  return '<div class="auth"><div class="auth-l"><div class="logo"><img src="' + LOGO + '" alt="" onerror="this.style.display=\'none\'"><div>' + WORD + '<b>Sales Control Tower</b></div></div>' +
+    '<div><h2>One place for every sales project, task and deadline.</h2><ul><li>See what you own and what is due next</li><li>Update progress in seconds</li><li>Every change recorded and visible to leadership</li></ul></div>' +
+    '<small>Internal tool for the Suraasa team. Access is limited to authorised accounts.</small></div><div class="auth-r"><div class="auth-card">' + inner + '</div></div></div>';
+}
+function pwField(id, label, auto) {
+  return '<div class="fld"><label for="' + id + '">' + label + '</label><div class="pw"><input id="' + id + '" type="password" autocomplete="' + auto + '" required><button type="button" data-act="pw-toggle" data-for="' + id + '" aria-label="Show or hide password">Show</button></div></div>';
+}
+function showLogin(msg, ok) {
+  closeModal();
+  $('#root').innerHTML = authShell('<h1>Sign in</h1><p class="sub">Use your official Suraasa email and your own password.</p>' +
+    (msg ? '<div id="auth-err" class="' + (ok ? 'okbox' : 'err') + '" role="alert">' + esc(msg) + '</div>' : '<div id="auth-err"></div>') +
+    '<form id="f-login" novalidate><div class="fld"><label for="li-email">Official email</label><input id="li-email" type="email" autocomplete="username" placeholder="name@suraasa.com" required></div>' +
+    pwField('li-pw', 'Password', 'current-password') +
+    '<button class="btn pri block" type="submit" id="li-go">Sign in</button></form>' +
+    '<div class="foot"><button type="button" data-act="show-forgot">Forgot password, or first time here?</button></div>');
+  var e = $('#li-email'); if (e) e.focus();
+}
+function showForgot() {
+  $('#root').innerHTML = authShell('<h1>Get a password link</h1><p class="sub">Enter your official email. If you have an account, we will email you a link to set or reset your password.</p><div id="auth-err"></div>' +
+    '<form id="f-forgot" novalidate><div class="fld"><label for="fg-email">Official email</label><input id="fg-email" type="email" autocomplete="username" placeholder="name@suraasa.com" required></div>' +
+    '<button class="btn pri block" type="submit" id="fg-go">Email me a link</button></form><div class="foot"><button type="button" data-act="show-login">Back to sign in</button></div>');
+  $('#fg-email').focus();
+}
+function showSetPassword(code, info) {
+  var first = info.kind === 'setup';
+  $('#root').innerHTML = authShell('<h1>' + (first ? 'Create your password' : 'Choose a new password') + '</h1><p class="sub">' + esc(info.name) + ' · ' + esc(info.email) + '</p><div id="auth-err"></div>' +
+    '<form id="f-setpw" data-code="' + esc(code) + '" novalidate>' + pwField('sp-pw', 'New password', 'new-password') +
+    '<div class="rules" id="sp-rules"><span data-r="len">At least 10 characters</span><span data-r="mix">At least one letter and one number</span><span data-r="same">Both entries match</span></div>' +
+    pwField('sp-pw2', 'Type it again', 'new-password') + '<button class="btn pri block" type="submit" id="sp-go">' + (first ? 'Activate my account' : 'Save new password') + '</button></form>' +
+    '<div class="foot" style="color:var(--muted)">Nobody at Suraasa can see your password, and nobody should ask for it.</div>');
+  $('#sp-pw').focus();
+}
+function authErr(msg) { var el = $('#auth-err'); if (el) { el.className = 'err'; el.setAttribute('role', 'alert'); el.textContent = msg; } }
+function btnBusy(b, on, label) { if (!b) return; if (on) { b.dataset.label = b.textContent; b.disabled = true; b.innerHTML = '<span class="spin"></span> ' + esc(label || 'Please wait'); } else { b.disabled = false; b.textContent = b.dataset.label || b.textContent; } }
+function enter(d) { setToken(d.token); setState(d.state); S.view = 'dashboard'; S.param = null; dropCaches(); render(); }
+function checkRules() {
+  var a = $('#sp-pw').value, b = $('#sp-pw2').value;
+  var ok = { len: a.length >= 10, mix: /[A-Za-z]/.test(a) && /\d/.test(a), same: a.length > 0 && a === b };
+  $$('#sp-rules span').forEach(function (s) { s.className = ok[s.dataset.r] ? 'ok' : ''; s.textContent = (ok[s.dataset.r] ? '✓ ' : '') + s.textContent.replace(/^✓ /, ''); });
+  return ok.len && ok.mix && ok.same;
+}
+document.addEventListener('submit', function (ev) {
+  var f = ev.target; ev.preventDefault();
+  if (f.id === 'f-login') {
+    var email = $('#li-email').value.trim(), pw = $('#li-pw').value, b = $('#li-go');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return authErr('Enter your official email address.');
+    if (!pw) return authErr('Enter your password.');
+    btnBusy(b, true, 'Signing in');
+    call('auth.login', { email: email, password: pw }).then(enter, function (e) { btnBusy(b, false); authErr(e.error); $('#li-pw').value = ''; $('#li-pw').focus(); });
+  } else if (f.id === 'f-forgot') {
+    var em = $('#fg-email').value.trim(), b2 = $('#fg-go');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return authErr('Enter your official email address.');
+    btnBusy(b2, true, 'Sending');
+    call('auth.forgot', { email: em }).then(function () { showLogin('If ' + em + ' has an account, a link is on its way. It can take a minute. Check spam too.', true); }, function (e) { btnBusy(b2, false); authErr(e.error); });
+  } else if (f.id === 'f-setpw') {
+    if (!checkRules()) return authErr('Please meet all three password rules.');
+    var b3 = $('#sp-go'); btnBusy(b3, true, 'Saving');
+    call('auth.setPassword', { token: f.dataset.code, password: $('#sp-pw').value }).then(function (d) { cleanUrl(); enter(d); toast('Password saved. You are signed in.'); }, function (e) { btnBusy(b3, false); authErr(e.error); });
+  }
+});
+function cleanUrl() { try { if (IN_GAS) google.script.history.replace(null, {}, ''); else history.replaceState(null, '', location.pathname); } catch (e) {} }
+
+/* ---------- shell ---------- */
+function shell() {
+  var nav = NAV.filter(function (n) { return !n[2] || S.me.isAdmin; }).map(function (n) {
+    var on = S.view === n[0] || (n[0] === 'projects' && S.view === 'project');
+    return '<button data-act="go" data-view="' + n[0] + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[n[0]] + '</svg>' + n[1] +
+      (n[0] === 'notifications' && S.unread ? '<span class="count">' + S.unread + '</span>' : '') + '</button>';
+  }).join('');
+  return '<div class="app"><aside class="side" id="side"><div class="brand"><img src="' + LOGO + '" alt="" onerror="this.style.display=\'none\'"><div>' + WORD + '<b>Sales Control Tower</b></div></div><nav class="nav" aria-label="Main">' + nav + '</nav>' +
+    '<div class="who"><div class="p">' + av(S.me.email, true) + '<div><b>' + esc(S.me.name) + '</b><small>' + esc(S.me.role) + '</small></div></div>' +
+    '<div class="links"><button data-act="change-pw">Change password</button><button data-act="sign-out">Sign out</button></div></div></aside>' +
+    '<div class="main"><div class="top"><button class="btn ghost menu-btn" data-act="menu" aria-label="Menu">☰</button><h1>' + esc(TITLES[S.view] || '') + '</h1>' +
+    '<span class="sync" id="sync"></span><button class="btn" data-act="refresh" title="Reload the latest data from the Sheet">Refresh</button></div><div class="content" id="view"></div></div></div>';
+}
+function render() {
+  if (!S.me) return;
+  if (S.view === 'project' && !P[S.param]) { S.view = 'projects'; S.param = null; }
+  if ((S.view === 'employees' || S.view === 'settings') && !S.me.isAdmin) S.view = 'dashboard';
+  $('#root').innerHTML = shell();
+  VIEWS[S.view]();
+  syncLabel();
+}
+function syncLabel() { var el = $('#sync'); if (!el || !S.syncedAt) return; var m = Math.floor((Date.now() - S.syncedAt) / 60000); el.textContent = m < 1 ? 'Updated just now' : 'Updated ' + m + ' min ago'; }
+function go(view, param) { S.view = view; S.param = param || null; render(); window.scrollTo(0, 0); }
+
+/* ---------- dashboard ---------- */
+function taskItem(t) {
+  return '<div class="item" data-act="task" data-id="' + esc(t.id) + '"><div class="grow"><div class="t">' + esc(t.title) + '</div><small>' + esc(t.id) + ' · ' + esc(pname(t.projectId)) + '</small></div>' +
+    '<div style="text-align:right;font-size:12.5px">' + dueText(t.dueDate, !isOpen(t)) + '</div>' + avs(t.assignees, 2) + '</div>';
+}
+function actHtml(list, empty) {
+  if (!list) return sk(4);
+  if (!list.length) return '<div class="empty">' + esc(empty || 'No activity recorded yet.') + '</div>';
+  return '<div class="hist">' + list.map(function (l) {
+    var ref = [l.taskId, l.projectId && !l.taskId ? l.projectId : ''].filter(Boolean).join(' · ');
+    var d = l.prev && l.next ? '<s>' + esc(l.prev) + '</s> → ' + esc(l.next) : esc(l.next || l.prev || '');
+    return '<div class="h"><span class="dot"></span><div><b>' + esc(l.action) + '</b>' + (ref ? ' · ' + esc(ref) : '') + '<small>' + esc(l.userName) + ' · ' + esc(fmtT(l.timestamp)) + '</small>' + (d ? '<div class="d">' + d + '</div>' : '') + '</div></div>';
+  }).join('') + '</div>';
+}
+function viewDashboard() {
+  var T = S.tasks, open = T.filter(isOpen), admin = S.me.isAdmin, c = function (s) { return count(T, function (t) { return t.status === s; }); };
+  var week = open.filter(function (t) { var n = daysTo(t.dueDate); return n != null && n >= 0 && n <= 7; }).sort(byDue);
+  var late = open.filter(function (t) { return t.overdue; }).sort(byDue);
+  var h = '';
+  if (admin) {
+    h += '<div class="grid kpis k8">' + kpi('Total projects', S.projects.length) + kpi('Active projects', count(S.projects, function (p) { return p.status === 'Active' || p.status === 'Overdue'; }), 'blue') +
+      kpi('Total tasks', T.length) + kpi('Completed', c('Completed'), 'green') + kpi('Pending', c('Pending'), 'amber') + kpi('In progress', c('In Progress'), 'blue') +
+      kpi('Overdue', late.length, late.length ? 'red' : '') + kpi('Employees', activeUsers().length) + '</div>';
+    h += '<div class="grid cols3 sec"><div class="card"><h3>Task distribution</h3>' + donut(S.meta.taskStatuses.map(function (s) { return { label: s, value: c(s), color: HEX[s] }; })) + '</div>' +
+      '<div class="card"><h3>Priority overview <small>open tasks</small></h3>' + bars(S.meta.priorities.slice().reverse().map(function (p) { return { label: p, value: count(open, function (t) { return t.priority === p; }), color: HEX[p] }; })) + '</div>' +
+      '<div class="card"><h3>Project progress</h3>' + bars(S.projects.slice().sort(function (a, b) { return b.progress - a.progress; }).slice(0, 7).map(function (p) { return { label: p.name, value: p.progress, text: p.progress + '%', color: HEX[p.status] }; }), 'No projects yet.') + '</div></div>';
+    var perf = {};
+    T.forEach(function (t) { t.assignees.forEach(function (e) { var o = perf[e] = perf[e] || { open: 0, done: 0, late: 0 }; if (t.status === 'Completed') o.done++; else if (isOpen(t)) o.open++; if (t.overdue) o.late++; }); });
+    var prow = Object.keys(perf).map(function (e) { var o = perf[e], tot = o.open + o.done; return { e: e, o: o, pct: tot ? Math.round(o.done / tot * 100) : 0 }; }).sort(function (a, b) { return b.o.open - a.o.open; }).slice(0, 10);
+    h += '<div class="grid cols2 sec"><div class="card"><h3>Employee-wise performance</h3>' + (prow.length ? '<div class="tablewrap" style="box-shadow:none"><table><thead><tr><th>Employee</th><th>Open</th><th>Completed</th><th>Overdue</th><th>Completion</th></tr></thead><tbody>' +
+      prow.map(function (r) { return '<tr><td>' + person(r.e) + '</td><td class="num">' + r.o.open + '</td><td class="num">' + r.o.done + '</td><td class="num' + (r.o.late ? ' late' : '') + '">' + r.o.late + '</td><td>' + prog(r.pct, '#2f7d32') + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<div class="empty">No tasks assigned yet.</div>') + '</div>' +
+      '<div class="card"><h3>Upcoming deadlines <small>next 7 days</small></h3>' + (week.length ? week.slice(0, 7).map(taskItem).join('') : '<div class="empty">No deadlines this week.</div>') + '</div></div>';
+    h += '<div class="grid cols2 sec"><div class="card"><h3>Overdue <small>' + late.length + '</small></h3>' + (late.length ? late.slice(0, 7).map(taskItem).join('') : '<div class="empty">Nothing is overdue.</div>') + '</div>' +
+      '<div class="card"><h3>Recent activity</h3>' + actHtml(S.recent.slice(0, 8)) + '</div></div>';
+  } else {
+    h += '<div class="welcome"><h2>Welcome, ' + esc(firstName(S.me.name)) + '</h2><p>' + (open.length ? 'You have ' + open.length + ' open task' + (open.length === 1 ? '' : 's') + (late.length ? ', ' + late.length + ' overdue' : '') + '.' : 'You have no open tasks right now.') + '</p></div>';
+    h += '<div class="grid kpis">' + kpi('My projects', S.projects.length) + kpi('Assigned tasks', T.length) + kpi('Pending', c('Pending'), 'amber') + kpi('In progress', c('In Progress'), 'blue') +
+      kpi('Completed', c('Completed'), 'green') + kpi('Overdue', late.length, late.length ? 'red' : '') + '</div>';
+    var next = late.concat(open.filter(function (t) { return !t.overdue; }).sort(byDue)).slice(0, 8);
+    h += '<div class="grid cols2 sec"><div class="card"><h3>My assigned tasks <small>most urgent first</small></h3>' + (next.length ? next.map(taskItem).join('') : '<div class="empty">Nothing to do right now.</div>') +
+      (T.length ? '<div style="margin-top:10px"><button class="btn sm" data-act="go" data-view="mytasks">See all my tasks</button></div>' : '') + '</div>' +
+      '<div class="card"><h3>Upcoming deadlines <small>next 7 days</small></h3>' + (week.length ? week.slice(0, 8).map(taskItem).join('') : '<div class="empty">No deadlines this week.</div>') + '</div></div>';
+    h += '<div class="grid cols2 sec"><div class="card"><h3>My projects</h3>' + bars(S.projects.map(function (p) { return { label: p.name, value: p.progress, text: p.progress + '%', color: HEX[p.status] }; }), 'You are not on a project yet.') + '</div>' +
+      '<div class="card"><h3>Recent updates</h3>' + actHtml(S.recent.slice(0, 8), 'No updates yet.') + '</div></div>';
+  }
+  $('#view').innerHTML = h;
+}
+
+/* ---------- projects ---------- */
+function projCard(p) {
+  var done = p.baseStatus === 'Completed' || p.baseStatus === 'Cancelled', admin = S.me.isAdmin;
+  return '<div class="pcard" data-act="project" data-id="' + esc(p.id) + '" tabindex="0" role="link" aria-label="Open project ' + esc(p.name) + '"><div class="hd"><b>' + esc(p.name) + '</b>' + badge(p.status) + '</div>' +
+    '<div class="sub">' + esc(p.id) + (p.department ? ' · ' + esc(p.department) : '') + ' · ' + badge(p.priority) + '</div>' + prog(p.progress, HEX[p.status]) +
+    '<div class="ft"><span>' + p.counts.completed + ' of ' + p.counts.total + ' tasks done</span>' + (p.counts.overdue ? '<span class="late">' + p.counts.overdue + ' overdue</span>' : '') + '<span class="sp"></span><span>' + (p.endDate ? (done ? '' : 'Due ') + esc(fmt(p.endDate)) : 'No deadline') + '</span></div>' +
+    '<div class="ft">' + person(p.manager) + '<span class="sp"></span>' + avs(p.team, 4) +
+    (admin ? '<button class="btn ghost sm" data-act="project-edit" data-id="' + esc(p.id) + '">Edit</button><button class="btn ghost sm red-t" data-act="project-del" data-id="' + esc(p.id) + '">Delete</button>' : '') + '</div></div>';
+}
+function projList() {
+  var f = S.f.projects, q = (f.q || '').toLowerCase();
+  var rows = S.projects.filter(function (p) {
+    if (f.status && p.status !== f.status) return false;
+    if (f.priority && p.priority !== f.priority) return false;
+    if (f.dept && p.department !== f.dept) return false;
+    return !q || (p.name + ' ' + p.id + ' ' + uname(p.manager) + ' ' + (p.description || '')).toLowerCase().indexOf(q) > -1;
+  });
+  var s = f.sort || 'deadline';
+  rows.sort(function (a, b) {
+    if (s === 'name') return a.name.localeCompare(b.name);
+    if (s === 'progress') return b.progress - a.progress;
+    if (s === 'updated') return (b.updatedAt || '') < (a.updatedAt || '') ? -1 : 1;
+    return (a.endDate || '9999') < (b.endDate || '9999') ? -1 : 1;
+  });
+  $('#plist').innerHTML = rows.length ? '<div class="grid pcards">' + rows.map(projCard).join('') + '</div>' :
+    '<div class="card empty">' + (S.projects.length ? 'No projects match these filters.' : (S.me.isAdmin ? 'No projects yet. Use “Add Project” to create the first one.' : 'You have not been assigned to a project yet.')) + '</div>';
+}
+function viewProjects() {
+  var Ps = S.projects, f = S.f.projects, admin = S.me.isAdmin, c = function (s) { return count(Ps, function (p) { return p.status === s; }); };
+  var h = '<div class="grid kpis">' + kpi('Total projects', Ps.length) + kpi('Active', c('Active'), 'blue') + kpi('Completed', c('Completed'), 'green') + kpi('On hold', c('On Hold')) +
+    kpi('Overdue', c('Overdue'), c('Overdue') ? 'red' : '') + kpi('Tasks across projects', Ps.reduce(function (a, p) { return a + p.counts.total; }, 0)) + '</div>';
+  var up = Ps.filter(function (p) { return p.endDate && p.baseStatus !== 'Completed' && p.baseStatus !== 'Cancelled'; }).sort(function (a, b) { return a.endDate < b.endDate ? -1 : 1; }).slice(0, 5);
+  var recent = Ps.slice().sort(function (a, b) { return (b.updatedAt || '') < (a.updatedAt || '') ? -1 : 1; }).slice(0, 5);
+  var pitem = function (p, right) { return '<div class="item" data-act="project" data-id="' + esc(p.id) + '"><div class="grow"><div class="t">' + esc(p.name) + '</div><small>' + esc(p.id) + ' · ' + esc(uname(p.manager)) + '</small></div><div style="text-align:right;font-size:12.5px">' + right + '</div>' + badge(p.status) + '</div>'; };
+  if (Ps.length) {
+    h += '<div class="grid cols3 sec"><div class="card"><h3>Status distribution</h3>' + donut(S.meta.projectStatuses.concat(['Overdue']).map(function (s) { return { label: s, value: c(s), color: HEX[s] }; })) + '</div>' +
+      '<div class="card"><h3>Project progress</h3>' + bars(Ps.slice().sort(function (a, b) { return b.progress - a.progress; }).slice(0, 7).map(function (p) { return { label: p.name, value: p.progress, text: p.progress + '%', color: HEX[p.status] }; })) + '</div>' +
+      '<div class="card"><h3>Task completion by project</h3>' + bars(Ps.filter(function (p) { return p.counts.total; }).slice(0, 7).map(function (p) { return { label: p.name, value: p.counts.completed / p.counts.total * 100, text: p.counts.completed + '/' + p.counts.total, color: '#2f7d32' }; }), 'No tasks in any project yet.') + '</div></div>';
+    h += '<div class="grid cols2 sec"><div class="card"><h3>Upcoming deadlines</h3>' + (up.length ? up.map(function (p) { return pitem(p, dueText(p.endDate)); }).join('') : '<div class="empty">No upcoming project deadlines.</div>') + '</div>' +
+      '<div class="card"><h3>Recently updated</h3>' + recent.map(function (p) { return pitem(p, esc(fmtT(p.updatedAt))); }).join('') + '</div></div>';
+  }
+  h += '<div class="sec-h"><h2>All projects</h2>' + (admin ? '<button class="btn pri" data-act="project-new">+ Add Project</button>' : '') + '</div>' +
+    '<div class="tools"><input type="search" placeholder="Search projects" aria-label="Search projects" data-f="projects.q" value="' + esc(f.q || '') + '">' +
+    '<select data-f="projects.status" aria-label="Status">' + opts(S.meta.projectStatuses.concat(['Overdue']), f.status, 'All statuses') + '</select>' +
+    '<select data-f="projects.priority" aria-label="Priority">' + opts(S.meta.priorities, f.priority, 'All priorities') + '</select>' +
+    '<select data-f="projects.dept" aria-label="Department">' + opts(S.meta.departments, f.dept, 'All departments') + '</select>' +
+    '<select data-f="projects.sort" aria-label="Sort">' + opts([['deadline', 'Sort: deadline'], ['name', 'Sort: name'], ['progress', 'Sort: progress'], ['updated', 'Sort: recently updated']], f.sort || 'deadline') + '</select></div><div id="plist"></div>';
+  $('#view').innerHTML = h;
+  projList();
+}
+
+/* ---------- tasks ---------- */
+function taskRow(t, hideProject) {
+  var admin = S.me.isAdmin;
+  return '<tr class="click" data-act="task" data-id="' + esc(t.id) + '"><td><span class="t">' + esc(t.title) + '</span><small>' + esc(t.id) + '</small></td>' +
+    (hideProject ? '' : '<td>' + esc(pname(t.projectId)) + '</td>') + '<td>' + avs(t.assignees, 3) + '</td><td>' + badge(t.priority) + '</td>' +
+    '<td>' + badge(t.status) + (t.overdue ? ' ' + badge('Overdue') : '') + '</td><td>' + dueText(t.dueDate, !isOpen(t)) + '</td><td>' + prog(t.progress, HEX[t.status]) + '</td>' +
+    '<td class="act">' + (!admin && mine(t) ? '<button class="btn ghost sm" data-act="task" data-id="' + esc(t.id) + '">Update</button>' : '') +
+    (admin ? '<button class="btn ghost sm" data-act="task-edit" data-id="' + esc(t.id) + '">Edit</button><button class="btn ghost sm red-t" data-act="task-del" data-id="' + esc(t.id) + '">Delete</button>' : '') + '</td></tr>';
+}
+function taskTable(rows, hideProject, emptyMsg, sort) {
+  if (!rows.length) return '<div class="card empty">' + esc(emptyMsg || 'No tasks here.') + '</div>';
+  var th = function (key, label) {
+    if (!sort) return '<th>' + label + '</th>';
+    var on = sort.sort === key;
+    return '<th data-sort="' + key + '" aria-sort="' + (on ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none') + '">' + label + '<span class="arr">' + (on ? (sort.dir > 0 ? '▲' : '▼') : '') + '</span></th>';
+  };
+  return '<div class="tablewrap"><table><thead><tr>' + th('title', 'Task') + (hideProject ? '' : th('project', 'Project')) + '<th>Assigned to</th>' + th('priority', 'Priority') + th('status', 'Status') + th('due', 'Due') + th('progress', 'Progress') + '<th></th></tr></thead><tbody>' +
+    rows.map(function (t) { return taskRow(t, hideProject); }).join('') + '</tbody></table></div>';
+}
+function sortTasks(rows, f) {
+  var k = f.sort || 'due', d = f.dir || 1;
+  var val = { title: function (t) { return t.title.toLowerCase(); }, project: function (t) { return pname(t.projectId).toLowerCase(); }, priority: function (t) { return PRANK[t.priority]; },
+    status: function (t) { return S.meta.taskStatuses.indexOf(t.status); }, due: function (t) { return t.dueDate || '9999-99-99'; }, progress: function (t) { return t.progress; } }[k];
+  return rows.sort(function (a, b) { var x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : (a.id < b.id ? -1 : 1)) * d; });
+}
+function taskList() {
+  var f = S.f.tasks, q = (f.q || '').toLowerCase();
+  var rows = S.tasks.filter(function (t) {
+    if (f.project === '__none' ? t.projectId : (f.project && t.projectId !== f.project)) return false;
+    if (f.status === 'Overdue' ? !t.overdue : (f.status && t.status !== f.status)) return false;
+    if (f.priority && t.priority !== f.priority) return false;
+    if (f.who && t.assignees.indexOf(f.who) === -1) return false;
+    return !q || (t.title + ' ' + t.id + ' ' + pname(t.projectId) + ' ' + t.assignees.map(uname).join(' ')).toLowerCase().indexOf(q) > -1;
+  });
+  sortTasks(rows, f);
+  var pages = Math.max(1, Math.ceil(rows.length / PAGE));
+  f.page = Math.min(Math.max(1, f.page || 1), pages);
+  var slice = rows.slice((f.page - 1) * PAGE, f.page * PAGE);
+  $('#tlist').innerHTML = taskTable(slice, false, S.tasks.length ? 'No tasks match these filters.' : (S.me.isAdmin ? 'No tasks yet. Use “Add Task” to create one.' : 'No tasks have been assigned to you yet.'), f) +
+    (rows.length ? '<div class="pager"><span>' + ((f.page - 1) * PAGE + 1) + '–' + Math.min(f.page * PAGE, rows.length) + ' of ' + rows.length + '</span><button class="btn sm" data-act="page" data-d="-1"' + (f.page <= 1 ? ' disabled' : '') + '>Previous</button><button class="btn sm" data-act="page" data-d="1"' + (f.page >= pages ? ' disabled' : '') + '>Next</button></div>' : '');
+}
+function viewTasks() {
+  var f = S.f.tasks, admin = S.me.isAdmin;
+  $('#view').innerHTML = '<div class="tools"><input type="search" placeholder="Search tasks" aria-label="Search tasks" data-f="tasks.q" value="' + esc(f.q || '') + '">' +
+    '<select data-f="tasks.project" aria-label="Project">' + opts([['__none', 'No project']].concat(S.projects.map(function (p) { return [p.id, p.name]; })), f.project, 'All projects') + '</select>' +
+    '<select data-f="tasks.status" aria-label="Status">' + opts(S.meta.taskStatuses.concat(['Overdue']), f.status, 'All statuses') + '</select>' +
+    '<select data-f="tasks.priority" aria-label="Priority">' + opts(S.meta.priorities, f.priority, 'All priorities') + '</select>' +
+    (admin ? '<select data-f="tasks.who" aria-label="Assigned to">' + opts(activeUsers().map(function (u) { return [u.email, u.name]; }), f.who, 'Everyone') + '</select>' : '') +
+    '<span class="sp"></span>' + (admin ? '<button class="btn pri" data-act="task-new">+ Add Task</button>' : '') + '</div><div id="tlist"></div>';
+  taskList();
+}
+function viewMyTasks() {
+  var T = S.tasks.filter(mine).sort(byDue), open = T.filter(isOpen);
+  var g = [['Overdue', open.filter(function (t) { return t.overdue; })],
+    ['Due in the next 7 days', open.filter(function (t) { var n = daysTo(t.dueDate); return !t.overdue && n != null && n <= 7; })],
+    ['Later or no deadline', open.filter(function (t) { var n = daysTo(t.dueDate); return !t.overdue && (n == null || n > 7); })],
+    ['Completed or cancelled', T.filter(function (t) { return !isOpen(t); })]];
+  var h = '<div class="grid kpis">' + kpi('Assigned to me', T.length) + kpi('Open', open.length, 'blue') + kpi('Overdue', g[0][1].length, g[0][1].length ? 'red' : '') + kpi('Completed', count(T, function (t) { return t.status === 'Completed'; }), 'green') + '</div>';
+  if (!T.length) h += '<div class="card empty sec">Nothing is assigned to you right now.</div>';
+  g.forEach(function (x) { if (x[1].length) h += '<div class="sec-h"><h2>' + x[0] + ' <small style="color:var(--muted);font-weight:400">' + x[1].length + '</small></h2></div>' + taskTable(x[1].slice(0, 100), false); });
+  $('#view').innerHTML = h;
+}
+
+/* ---------- project workspace ---------- */
+function viewProject() {
+  var p = P[S.param], admin = S.me.isAdmin, done = p.baseStatus === 'Completed' || p.baseStatus === 'Cancelled';
+  var T = S.tasks.filter(function (t) { return t.projectId === p.id; }).sort(byDue);
+  var groups = { all: T, pending: T.filter(isOpen), completed: T.filter(function (t) { return t.status === 'Completed'; }), overdue: T.filter(function (t) { return t.overdue; }) };
+  var tab = groups[S.f.ptab] ? S.f.ptab : 'all';
+  var h = '<div class="crumb"><button class="btn ghost sm" data-act="go" data-view="projects">← Projects</button><span>/</span><span>' + esc(p.id) + '</span></div>' +
+    '<div class="hero"><div class="grow"><h2>' + esc(p.name) + '</h2><div class="meta">' + badge(p.status) + badge(p.priority) + (p.department ? '<span>' + esc(p.department) + '</span>' : '') +
+    '<span>' + (p.startDate ? esc(fmt(p.startDate)) : 'No start date') + ' → ' + (p.endDate ? esc(fmt(p.endDate)) : 'No deadline') + '</span></div></div>' +
+    (admin ? '<button class="btn pri" data-act="task-new" data-project="' + esc(p.id) + '">+ Add Task</button><button class="btn" data-act="project-edit" data-id="' + esc(p.id) + '">Edit project</button><button class="btn red-t" data-act="project-del" data-id="' + esc(p.id) + '">Delete</button>' : '') + '</div>';
+  h += '<div class="grid kpis"><div class="kpi"><small>Project progress</small><b>' + p.progress + '%</b><div class="track" style="margin-top:6px"><i style="width:' + p.progress + '%;background:' + HEX[p.status] + '"></i></div></div>' +
+    kpi('Tasks', p.counts.total) + kpi('Completed', p.counts.completed, 'green') + kpi('Pending', p.counts.pending, 'blue') + kpi('Overdue', p.counts.overdue, p.counts.overdue ? 'red' : '') + '</div>';
+  h += '<div class="grid cols2 sec"><div class="card"><h3>Overview</h3><dl class="facts"><dt>Description</dt><dd class="pre">' + (esc(p.description) || '—') + '</dd><dt>Objectives</dt><dd class="pre">' + (esc(p.objectives) || '—') + '</dd>' +
+    '<dt>Notes</dt><dd class="pre">' + (esc(p.notes) || '—') + '</dd><dt>Start date</dt><dd>' + (esc(fmt(p.startDate)) || '—') + '</dd><dt>Deadline</dt><dd>' + dueText(p.endDate, done) + '</dd>' +
+    '<dt>Created</dt><dd>' + esc(fmtT(p.createdAt)) + (p.createdBy ? ' by ' + esc(uname(p.createdBy)) : '') + '</dd></dl></div>' +
+    '<div class="card"><h3>People</h3><dl class="facts"><dt>Owner</dt><dd>' + person(p.owner) + '</dd><dt>Manager</dt><dd>' + person(p.manager) + '</dd><dt>Team (' + p.team.length + ')</dt><dd>' +
+    (p.team.length ? p.team.map(function (e) { return '<div style="margin-bottom:6px">' + person(e) + '</div>'; }).join('') : '—') + '</dd></dl></div></div>';
+  var labels = { all: 'All tasks', pending: 'Pending', completed: 'Completed', overdue: 'Overdue' };
+  h += '<div class="sec-h"><h2>' + (admin ? 'Tasks in this project' : 'My tasks in this project') + '</h2></div><div class="tabs" role="tablist">' + Object.keys(labels).map(function (k) {
+    return '<button role="tab" aria-selected="' + (k === tab) + '" data-act="ptab" data-tab="' + k + '" class="' + (k === tab ? 'on' : '') + '">' + labels[k] + '<span>' + groups[k].length + '</span></button>';
+  }).join('') + '</div>' + taskTable(groups[tab].slice(0, 200), true, admin ? 'No tasks in this view. Use “Add Task” to create one in this project.' : 'No tasks assigned to you in this view.');
+  h += '<div class="sec-h"><h2>Project activity history</h2></div><div class="card" id="phist">' + actHtml(S.phist[p.id]) + '</div>';
+  $('#view').innerHTML = h;
+  if (!S.phist[p.id]) {
+    var id = p.id;
+    call('project.detail', { id: id }).then(function (d) { S.phist[id] = d.history; var el = $('#phist'); if (el && S.view === 'project' && S.param === id) el.innerHTML = actHtml(d.history); },
+      function (e) { var el = $('#phist'); if (el) el.innerHTML = '<div class="empty">' + esc(e.error) + '</div>'; });
+  }
+}
+
+/* ---------- employees ---------- */
+function empList() {
+  var q = (S.f.emps.q || '').toLowerCase(), acc = S.accounts;
+  var rows = S.users.filter(function (u) { return !q || (u.name + ' ' + u.email + ' ' + (u.department || '') + ' ' + (u.designation || '') + ' ' + u.id).toLowerCase().indexOf(q) > -1; });
+  $('#elist').innerHTML = '<div class="tablewrap"><table><thead><tr><th>Employee</th><th>ID</th><th>Role</th><th>Department</th><th>Login account</th><th>Last login</th><th>Open tasks</th><th></th></tr></thead><tbody>' +
+    rows.map(function (u) {
+      var a = acc ? acc[u.email] : null, state = a ? a.account : '…', btn = '';
+      if (a && u.status === 'Active') {
+        if (state === 'Not invited') btn = '<button class="btn sm pri" data-act="acc-invite" data-id="' + esc(u.email) + '">Send invite</button>';
+        else if (state === 'Invited' || state === 'Invite expired') btn = '<button class="btn sm" data-act="acc-invite" data-id="' + esc(u.email) + '">Resend invite</button>';
+        else btn = '<button class="btn sm" data-act="acc-reset" data-id="' + esc(u.email) + '">Reset password</button>';
+      }
+      return '<tr><td><span class="person">' + av(u.email) + '<span><span class="t">' + esc(u.name) + '</span><small>' + esc(u.email) + (u.designation ? ' · ' + esc(u.designation) : '') + '</small></span></span></td><td>' + esc(u.id || '—') + '</td><td>' + badge(u.role) + '</td>' +
+        '<td>' + esc(u.department || '—') + '</td><td>' + (state === 'Active' ? '<span class="badge b-green">Active</span>' : state === 'On Hold' ? '<span class="badge b-amber">On Hold</span>' : badge(state)) +
+        (a && a.inviteSent && state !== 'Active' ? '<small>Invite sent ' + esc(fmtT(a.inviteSent)) + '</small>' : '') + '</td>' +
+        '<td>' + (esc(fmtT(u.lastLogin)) || '<span style="color:var(--muted)">Never</span>') + '</td><td class="num">' + count(S.tasks, function (t) { return isOpen(t) && t.assignees.indexOf(u.email) > -1; }) + '</td>' +
+        '<td class="act">' + btn + ' <button class="btn ghost sm" data-act="emp-edit" data-id="' + esc(u.email) + '">Edit</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+function viewEmployees() {
+  var hold = count(S.users, function (u) { return u.status === 'On Hold'; });
+  $('#view').innerHTML = (hold ? '<div class="warn"><b>' + hold + ' ' + (hold === 1 ? 'person is' : 'people are') + ' On Hold.</b> Their name in the old Users tab did not match the approved team list, so they cannot sign in. If the person is correct, click Edit, fix the name if needed, set Employee status to Active, then Send invite.</div>' : '') +
+    '<div class="tools"><input type="search" placeholder="Search employees" aria-label="Search employees" data-f="emps.q" value="' + esc(S.f.emps.q || '') + '"><span class="hint">Passwords are never shown here. People set their own from an emailed link.</span><span class="sp"></span><button class="btn pri" data-act="emp-new">+ Add Employee</button></div><div id="elist"></div>';
+  empList();
+  if (!S.accounts) call('accounts.list', {}).then(function (d) { S.accounts = d.accounts; if (S.view === 'employees') empList(); }, function (e) { if (e.code !== 'AUTH') toast(e.error, true); });
+}
+
+/* ---------- logs, notifications ---------- */
+function logList() {
+  var el = $('#llist'); if (!el) return;
+  if (!S.logs) { el.innerHTML = '<div class="card">' + sk(6) + '</div>'; return; }
+  var f = S.f.logs, q = (f.q || '').toLowerCase();
+  var rows = S.logs.filter(function (l) {
+    if (f.type === 'Task' && !l.taskId) return false;
+    if (f.type === 'Project' && (l.taskId || !l.projectId)) return false;
+    if (f.type === 'Account' && (l.taskId || l.projectId)) return false;
+    return !q || (l.action + ' ' + l.taskId + ' ' + l.projectId + ' ' + l.prev + ' ' + l.next + ' ' + l.userName).toLowerCase().indexOf(q) > -1;
+  }).slice(0, 300);
+  el.innerHTML = rows.length ? '<div class="tablewrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Task / Project</th><th>Previous value</th><th>New value</th></tr></thead><tbody>' + rows.map(function (l) {
+    return '<tr><td style="white-space:nowrap">' + esc(fmtT(l.timestamp)) + '</td><td>' + esc(l.userName) + '</td><td><span class="t">' + esc(l.action) + '</span></td><td>' + esc(l.taskId || l.projectId || '—') + (l.taskId && l.projectId ? '<small>' + esc(l.projectId) + '</small>' : '') + '</td>' +
+      '<td style="overflow-wrap:anywhere;color:var(--muted)">' + esc(l.prev) + '</td><td style="overflow-wrap:anywhere;color:var(--ink2)">' + esc(l.next) + '</td></tr>';
+  }).join('') + '</tbody></table></div>' : '<div class="card empty">No activity found.</div>';
+}
+function viewLogs() {
+  var f = S.f.logs;
+  $('#view').innerHTML = '<div class="tools"><input type="search" placeholder="Search activity" aria-label="Search activity" data-f="logs.q" value="' + esc(f.q || '') + '"><select data-f="logs.type" aria-label="Type">' + opts(['Task', 'Project', 'Account'], f.type, 'Everything') + '</select>' +
+    '<span class="hint">' + (S.me.isAdmin ? 'Every change made in the Control Tower, newest first.' : 'Activity on your tasks and projects.') + '</span></div><div id="llist"></div>';
+  logList();
+  if (!S.logs) call('logs.list', {}).then(function (d) { S.logs = d.logs; logList(); }, function (e) { if (e.code !== 'AUTH') toast(e.error, true); });
+}
+function notifList() {
+  var el = $('#nlist'); if (!el) return;
+  if (!S.notifs) { el.innerHTML = '<div class="card">' + sk(5) + '</div>'; return; }
+  el.innerHTML = S.notifs.length ? '<div class="tablewrap"><table><tbody>' + S.notifs.map(function (n) {
+    return '<tr class="click' + (n.isRead ? '' : ' unread') + '" data-act="notif" data-id="' + esc(n.id) + '"><td style="width:120px;white-space:nowrap;color:var(--muted)">' + esc(fmtT(n.createdAt)) + '</td>' +
+      '<td><span class="t">' + esc(n.subject) + '</span><small>' + esc(n.message) + '</small></td><td class="act">' + (n.status === 'Sent' ? '<span class="badge b-green">Emailed</span> ' : n.status === 'Queued' ? '<span class="badge b-amber">Email queued</span> ' : n.status === 'Failed' ? '<span class="badge b-red">Email failed</span> ' : '') + '<span class="badge">' + esc(n.type) + '</span></td></tr>';
+  }).join('') + '</tbody></table></div>' : '<div class="card empty">You have no notifications.</div>';
+}
+function viewNotifications() {
+  $('#view').innerHTML = '<div class="tools"><span class="hint">' + S.unread + ' unread</span><span class="sp"></span><button class="btn" data-act="notif-all"' + (S.unread ? '' : ' disabled') + '>Mark all as read</button></div><div id="nlist"></div>';
+  notifList();
+  if (!S.notifs) call('notifs.list', {}).then(function (d) { S.notifs = d.notifications; notifList(); }, function (e) { if (e.code !== 'AUTH') toast(e.error, true); });
+}
+
+/* ---------- settings ---------- */
+function perfHtml() {
+  if (!S.perf.length) return '<div class="empty">No requests yet.</div>';
+  return '<div class="tablewrap" style="box-shadow:none"><table><thead><tr><th>Time</th><th>Request</th><th>Round trip</th><th>Server work</th></tr></thead><tbody>' + S.perf.slice(0, 15).map(function (p) {
+    return '<tr><td>' + esc(p.at) + '</td><td>' + esc(p.action) + '</td><td class="num">' + (p.total / 1000).toFixed(2) + ' s</td><td class="num">' + (p.server == null ? '—' : (p.server / 1000).toFixed(2) + ' s') + '</td></tr>';
+  }).join('') + '</tbody></table></div><div class="hint" style="margin-top:8px">Round trip is what you waited. Server work is the part spent in the script and the Sheet; the rest is Google\'s network and start-up time, which the app cannot change.</div>';
+}
+function viewSettings() {
+  $('#view').innerHTML = '<div class="grid cols2"><div class="card"><h3>Notifications and lists</h3><label class="pick" style="padding:0"><input type="checkbox" id="set-mail"' + (S.meta.emailNotifications ? ' checked' : '') + '> Send assignment emails</label>' +
+    '<div class="hint">When off, people still get in-app notifications. Password emails are always sent.</div><div style="margin-top:12px"><label class="pick" style="padding:0"><input type="checkbox" id="set-rem"> Daily 9 AM reminder email for overdue and due-soon tasks</label></div>' +
+    '<div class="fld" style="margin-top:12px"><label for="set-depts">Departments (comma separated)</label><input id="set-depts" value="' + esc(S.meta.departments.join(', ')) + '"></div>' +
+    '<div class="fld" style="margin-top:12px"><label for="set-site">Website address used in emails</label><input id="set-site" placeholder="https://your-site.vercel.app/" value="' + esc(S.meta.siteUrl || '') + '"><div class="hint">Set this if people open the app from Vercel. Leave blank to use the Apps Script link.</div></div>' +
+    '<div style="margin-top:12px"><button class="btn pri" data-act="settings-save" id="set-save" disabled>Save settings</button></div></div>' +
+    '<div class="card"><h3>System</h3><div id="sysinfo">' + sk(5) + '</div></div></div>' +
+    '<div class="sec-h"><h2>Speed of recent requests</h2><button class="btn sm" data-act="perf-refresh">Update</button></div><div class="card" id="perf">' + perfHtml() + '</div>' +
+    '<div class="sec-h"><h2>Deleted items</h2><span class="hint">Deleted projects and tasks stay in the Sheet and can be restored.</span></div><div id="trash"><div class="card">' + sk(3) + '</div></div>';
+  var paintHealth = function () {
+    var d = S.health; if (!d || !$('#sysinfo')) return;
+    $('#set-rem').checked = !!d.reminderOn; $('#set-save').disabled = false;
+    var bad = d.tabs.filter(function (t) { return t.missing.length; });
+    $('#sysinfo').className = '';
+    $('#sysinfo').innerHTML = '<dl class="facts"><dt>Version</dt><dd>' + esc(S.meta.app.version) + '</dd><dt>Emails sent as</dt><dd>' + esc(d.runningAs || '—') + '</dd><dt>Emails left today</dt><dd>' + esc(d.emailQuota == null ? '—' : d.emailQuota) + '</dd>' +
+      '<dt>Email timer</dt><dd>' + (d.mailTimer ? '<span class="badge b-green">On</span><small>emails go out within about a minute</small>' : '<span class="badge b-amber">Off</span><small>emails are sent while saving, which is slower</small>') + '</dd>' +
+      '<dt>Sheet</dt><dd><a href="' + esc(d.sheetUrl) + '" target="_blank" rel="noopener">Open the database Sheet</a></dd><dt>Archive</dt><dd>' + (d.archiveUrl ? '<a href="' + esc(d.archiveUrl) + '" target="_blank" rel="noopener">Copy from before the upgrade</a>' : '—') + '</dd>' +
+      '<dt>Sheet check</dt><dd>' + (bad.length ? bad.map(function (t) { return '<div class="late">' + esc(t.name) + ': missing ' + esc(t.missing.join(', ')) + '</div>'; }).join('') : '<span class="badge b-green">All tabs and columns present</span>') +
+      '<div class="hint">' + d.tabs.map(function (t) { return esc(t.name) + ' ' + t.rows; }).join(' · ') + ' rows</div></dd></dl>';
+  };
+  var paintTrash = function () {
+    var d = S.trash; if (!d || !$('#trash')) return;
+    var rows = d.projects.map(function (p) { return ['Project', p.id, p.name, p, 'project-restore']; }).concat(d.tasks.map(function (t) { return ['Task', t.id, t.title, t, 'task-restore']; }));
+    $('#trash').innerHTML = rows.length ? '<div class="tablewrap"><table><thead><tr><th>Type</th><th>Item</th><th>Deleted by</th><th>Deleted at</th><th></th></tr></thead><tbody>' + rows.map(function (r) {
+      return '<tr><td>' + r[0] + '</td><td><span class="t">' + esc(r[2]) + '</span><small>' + esc(r[1]) + '</small></td><td>' + esc(uname(r[3].deletedBy)) + '</td><td>' + esc(fmtT(r[3].deletedAt)) + '</td><td class="act"><button class="btn sm" data-act="' + r[4] + '" data-id="' + esc(r[1]) + '">Restore</button></td></tr>';
+    }).join('') + '</tbody></table></div>' : '<div class="card empty">Nothing has been deleted.</div>';
+  };
+  if (S.health) paintHealth(); else call('admin.health', {}).then(function (d) { S.health = d; paintHealth(); }, function (e) { if (e.code !== 'AUTH') toast(e.error, true); });
+  if (S.trash) paintTrash(); else call('admin.trash', {}).then(function (d) { S.trash = d; paintTrash(); }, function (e) { if (e.code !== 'AUTH') toast(e.error, true); });
+}
+
+var VIEWS = { dashboard: viewDashboard, projects: viewProjects, project: viewProject, tasks: viewTasks, mytasks: viewMyTasks, employees: viewEmployees, logs: viewLogs, notifications: viewNotifications, settings: viewSettings };
+var LISTS = { projects: projList, tasks: function () { S.f.tasks.page = 1; taskList(); }, emps: empList, logs: logList };
+
+/* ---------- modal + forms ---------- */
+var lastFocus = null;
+function modal(title, body, foot, size) {
+  if (!$('#modal').innerHTML) lastFocus = document.activeElement;
+  $('#modal').innerHTML = '<div class="overlay" data-act="overlay"><div class="modal ' + (size || '') + '" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><div class="m-h"><h2>' + esc(title) + '</h2><button class="btn ghost" data-act="close" aria-label="Close">✕</button></div><div class="m-b">' + body + '</div>' + (foot ? '<div class="m-f">' + foot + '</div>' : '') + '</div></div>';
+  var first = $('#modal .m-b input:not([readonly]):not([type=checkbox]):not([type=radio]):not([type=range]), #modal .m-b textarea');
+  if (first && first.focus) first.focus();
+}
+function closeModal() { var m = $('#modal'); if (!m || !m.innerHTML) return; m.innerHTML = ''; if (lastFocus && document.contains(lastFocus)) { try { lastFocus.focus(); } catch (e) {} } lastFocus = null; }
+function fld(label, name, value, o) {
+  o = o || {};
+  var req = o.req ? ' <i>*</i>' : '', cls = 'fld' + (o.full ? ' full' : ''), id = 'f-' + name, c;
+  if (o.type === 'select') c = '<select id="' + id + '" name="' + name + '"' + (o.disabled ? ' disabled' : '') + '>' + opts(o.options, value, o.blank) + '</select>';
+  else if (o.type === 'textarea') c = '<textarea id="' + id + '" name="' + name + '" placeholder="' + esc(o.ph || '') + '">' + esc(value) + '</textarea>';
+  else c = '<input id="' + id + '" name="' + name + '" type="' + (o.type || 'text') + '" value="' + esc(value) + '"' + (o.readonly ? ' readonly' : '') + (o.min != null ? ' min="' + o.min + '" max="' + o.max + '"' : '') + ' placeholder="' + esc(o.ph || '') + '">';
+  return '<div class="' + cls + '"><label for="' + id + '">' + esc(label) + req + '</label>' + c + (o.hint ? '<div class="hint">' + esc(o.hint) + '</div>' : '') + '</div>';
+}
+function picker(label, name, selected, req) {
+  var list = activeUsers();
+  (selected || []).forEach(function (e) { if (!list.some(function (u) { return u.email === e; })) list.push({ email: e, name: uname(e), designation: 'not active' }); });
+  return '<div class="fld full"><label>' + esc(label) + (req ? ' <i>*</i>' : '') + '</label><div class="picker" data-picker="' + name + '"><input class="q" type="text" placeholder="Search people" aria-label="Search people" data-pickq>' +
+    '<div class="opts">' + list.map(function (u) {
+      return '<label class="pick"><input type="checkbox" value="' + esc(u.email) + '"' + ((selected || []).indexOf(u.email) > -1 ? ' checked' : '') + '><span>' + esc(u.name) + '</span><small>' + esc(u.designation || u.department || u.email) + '</small></label>';
+    }).join('') + '</div></div></div>';
+}
+function readForm() {
+  var d = {};
+  $$('#modal [name]').forEach(function (el) { if (el.type === 'radio') return; d[el.name] = el.type === 'checkbox' ? el.checked : el.value; });
+  $$('#modal [data-picker]').forEach(function (p) { d[p.getAttribute('data-picker')] = $$('.opts input[type=checkbox]:checked', p).map(function (c) { return c.value; }); });
+  return d;
+}
+function sameSet(a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) > -1; }); }
+function userOpts() { return activeUsers().map(function (u) { return [u.email, u.name]; }); }
+var EDITING = null;
+
+function taskForm(t, projectId) {
+  var isNew = !t;
+  EDITING = t || null;
+  t = t || { title: '', description: '', projectId: projectId || '', assignees: [], priority: 'Medium', status: 'Pending', startDate: S.meta.today, dueDate: '', instructions: '', links: '', progress: 0 };
+  var body = '<div class="form">' + fld('Task title', 'title', t.title, { req: true, full: true }) + fld('Description', 'description', t.description, { type: 'textarea', full: true }) +
+    fld('Project', 'projectId', t.projectId, { type: 'select', options: S.projects.map(function (p) { return [p.id, p.name + ' (' + p.id + ')']; }), blank: 'No project', disabled: isNew && !!projectId, hint: isNew && projectId ? 'This task will be created inside ' + pname(projectId) + '.' : '' }) +
+    fld('Priority', 'priority', t.priority, { type: 'select', options: S.meta.priorities }) + picker('Assign to', 'assignees', t.assignees, true) +
+    fld('Start date', 'startDate', t.startDate, { type: 'date' }) + fld('Due date', 'dueDate', t.dueDate, { type: 'date' }) +
+    fld('Status', 'status', t.status, { type: 'select', options: S.meta.taskStatuses }) + (isNew ? '<div></div>' : fld('Progress (%)', 'progress', t.progress, { type: 'number', min: 0, max: 100 })) +
+    fld('Instructions', 'instructions', t.instructions, { type: 'textarea', full: true, ph: 'What exactly should be done, and how' }) +
+    fld('Reference links', 'links', t.links, { type: 'textarea', full: true, ph: 'One link per line' }) + '</div>';
+  modal(isNew ? 'Add Task' : 'Edit Task · ' + t.id, body, '<button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="task-save" data-rid="' + rid() + '" data-project="' + esc(projectId || '') + '">' + (isNew ? 'Create task and notify' : 'Save changes') + '</button>');
+}
+function taskSave(ds, btn) {
+  var d = readForm(), t = EDITING;
+  if (!d.title.trim()) return toast('Task title is required.', true);
+  if (!d.assignees.length) return toast('Assign the task to at least one employee.', true);
+  if (d.startDate && d.dueDate && d.dueDate < d.startDate) return toast('Due date cannot be before the start date.', true);
+  if (!t && ds.project) d.projectId = ds.project;
+  if (t) {
+    d.id = t.id;
+    if (sameSet(d.assignees, t.assignees)) delete d.assignees;
+    if (d.status === t.status) delete d.status;
+    if (String(d.progress) === String(t.progress) || d.progress === '') delete d.progress;
+  } else { delete d.progress; d.requestId = ds.rid; }
+  btn.disabled = true;
+  mutate(t ? 'task.update' : 'task.create', d, t ? 'Task updated' : 'Task created. The assignee has been notified.').then(function () { closeModal(); render(); }, function () { btn.disabled = false; });
+}
+function taskDetail(id) {
+  var t = S.tasks.filter(function (x) { return x.id === id; })[0];
+  if (!t) return toast('That task is no longer available.', true);
+  var admin = S.me.isAdmin, can = admin || mine(t);
+  var statuses = admin ? S.meta.taskStatuses : S.meta.employeeTaskStatuses.concat(t.status === 'Cancelled' ? ['Cancelled'] : []);
+  var body = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' + badge(t.status) + (t.overdue ? badge('Overdue') : '') + badge(t.priority) + '</div>' +
+    '<dl class="facts"><dt>Task ID</dt><dd>' + esc(t.id) + '</dd><dt>Project</dt><dd>' + (P[t.projectId] ? '<a href="#" data-act="project" data-id="' + esc(t.projectId) + '">' + esc(pname(t.projectId)) + '</a><small>' + esc(t.projectId) + '</small>' : esc(pname(t.projectId))) + '</dd>' +
+    '<dt>Assigned to</dt><dd>' + (t.assignees.length ? t.assignees.map(function (e) { return '<div style="margin-bottom:5px">' + person(e) + '</div>'; }).join('') : '—') + '</dd>' +
+    '<dt>Start date</dt><dd>' + (esc(fmt(t.startDate)) || '—') + '</dd><dt>Due date</dt><dd>' + dueText(t.dueDate, !isOpen(t)) + '</dd><dt>Progress</dt><dd>' + prog(t.progress, HEX[t.status]) + '</dd></dl>' +
+    '<div id="td-more">' + sk(3) + '</div>';
+  if (can) body += '<div class="update"><div class="lbl">Update this task</div><div class="rowf"><div class="fld" style="flex:1;min-width:150px"><label for="up-status">Status</label><select name="status" id="up-status">' + opts(statuses, t.status) + '</select></div>' +
+    '<div class="fld" style="flex:2;min-width:200px"><label for="up-prog">Progress: <b id="up-val">' + t.progress + '</b>%</label><input type="range" name="progress" id="up-prog" min="0" max="100" step="5" value="' + t.progress + '"></div></div>' +
+    '<div class="fld" style="margin-top:10px"><label for="up-cmt">Comment (optional)</label><textarea id="up-cmt" name="comment" placeholder="What changed, what is blocked, what is next"></textarea></div>' +
+    '<div style="margin-top:10px;text-align:right"><button class="btn pri" data-act="task-progress" data-id="' + esc(t.id) + '">Save update</button></div></div>';
+  body += '<div class="tabs" style="margin-top:6px"><button class="on">Comments</button></div><div id="td-comments">' + sk(2) + '</div>' +
+    '<div class="tabs" style="margin-top:14px"><button class="on">Activity history</button></div><div id="td-history">' + sk(3) + '</div>';
+  modal(t.title, body, (admin ? '<button class="btn red-t" data-act="task-del" data-id="' + esc(t.id) + '">Delete</button><button class="btn" data-act="task-edit" data-id="' + esc(t.id) + '">Edit task</button>' : '') + '<button class="btn" data-act="close">Close</button>', 'wide');
+  var cl = $('#modal [data-act=close]'); if (cl) cl.focus();
+  call('task.detail', { id: id }).then(function (d) {
+    if (!$('#td-more')) return;
+    var f = d.task;
+    $('#td-more').innerHTML = '<dl class="facts" style="margin-top:8px"><dt>Description</dt><dd class="pre">' + (esc(f.description) || '—') + '</dd><dt>Instructions</dt><dd class="pre">' + (esc(f.instructions) || '—') + '</dd><dt>Reference links</dt><dd>' + linksHtml(f.links) + '</dd>' +
+      '<dt>Assigned by</dt><dd>' + esc(f.assignedBy ? uname(f.assignedBy) : '—') + '</dd><dt>Created</dt><dd>' + (esc(fmtT(f.createdAt)) || '—') + '</dd><dt>Updated</dt><dd>' + (esc(fmtT(f.updatedAt)) || '—') + (f.updatedBy ? ' by ' + esc(uname(f.updatedBy)) : '') + '</dd><dt>Completed</dt><dd>' + (esc(fmtT(f.completedAt)) || '—') + '</dd></dl>';
+    $('#td-comments').innerHTML = d.comments.length ? d.comments.map(function (c) { return '<div class="cmt"><b>' + esc(c.userName) + '</b><small>' + esc(fmtT(c.timestamp)) + '</small><div class="pre">' + esc(c.next) + '</div></div>'; }).join('') : '<div class="empty">No comments yet.</div>';
+    $('#td-history').innerHTML = actHtml(d.history);
+  }, function (e) { if ($('#td-more')) $('#td-more').innerHTML = '<div class="empty">' + esc(e.error) + '</div>'; });
+}
+function taskDelete(id) {
+  var t = S.tasks.filter(function (x) { return x.id === id; })[0]; if (!t) return;
+  modal('Delete task?', '<div class="dangerbox"><b>' + esc(t.title) + '</b> (' + esc(t.id) + ') will be removed from every dashboard, including for ' + (t.assignees.map(uname).map(esc).join(', ') || 'its assignees') + '.</div>' +
+    '<p style="margin:0 0 12px;color:var(--ink2)">The row stays in the Tasks tab marked as deleted, with your name and the time. A Super Admin can restore it from Settings.</p>' +
+    '<label class="pick" style="padding:0"><input type="checkbox" id="del-ok"> Yes, delete this task</label>',
+    '<button class="btn" data-act="close">Cancel</button><button class="btn danger" id="del-go" data-act="task-del-go" data-id="' + esc(t.id) + '" disabled>Delete task</button>', 'narrow');
+}
+function projectForm(p) {
+  var isNew = !p;
+  p = p || { id: '', name: '', description: '', owner: S.me.email, manager: '', team: [], startDate: S.meta.today, endDate: '', priority: 'Medium', baseStatus: 'Not Started', department: '', objectives: '', notes: '' };
+  var body = '<div class="form">' + fld('Project name', 'name', p.name, { req: true }) + fld('Project ID', '_id', isNew ? 'Generated automatically on save' : p.id, { readonly: true }) +
+    fld('Project description', 'description', p.description, { type: 'textarea', full: true }) +
+    fld('Project owner', 'owner', p.owner, { type: 'select', options: userOpts(), blank: 'Select…', req: true }) + fld('Project manager', 'manager', p.manager, { type: 'select', options: userOpts(), blank: 'Select…', req: true }) +
+    picker('Assigned team members', 'team', p.team) + fld('Start date', 'startDate', p.startDate, { type: 'date' }) + fld('End date', 'endDate', p.endDate, { type: 'date' }) +
+    fld('Priority', 'priority', p.priority, { type: 'select', options: S.meta.priorities }) + fld('Project status', 'status', p.baseStatus, { type: 'select', options: S.meta.projectStatuses, hint: 'Overdue is applied automatically once the end date passes.' }) +
+    fld('Department', 'department', p.department, { type: 'select', options: S.meta.departments, blank: 'None' }) +
+    '<div class="fld"><label>Notify team</label><label class="pick" style="padding:8px 0"><input type="checkbox" name="notify" checked> Email people ' + (isNew ? 'added to this project' : 'newly added') + '</label></div>' +
+    fld('Project objectives', 'objectives', p.objectives, { type: 'textarea', full: true }) + fld('Additional notes', 'notes', p.notes, { type: 'textarea', full: true }) + '</div>';
+  modal(isNew ? 'Add Project' : 'Edit Project · ' + p.id, body, '<button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="project-save" data-id="' + esc(p.id) + '" data-rid="' + rid() + '">' + (isNew ? 'Create project' : 'Save changes') + '</button>', 'wide');
+}
+function projectSave(ds, btn) {
+  var d = readForm(); delete d._id;
+  if (!d.name.trim()) return toast('Project name is required.', true);
+  if (!d.owner || !d.manager) return toast('Choose a project owner and a project manager.', true);
+  if (d.startDate && d.endDate && d.endDate < d.startDate) return toast('End date cannot be before the start date.', true);
+  if (ds.id) d.id = ds.id; else d.requestId = ds.rid;
+  btn.disabled = true;
+  mutate(ds.id ? 'project.update' : 'project.create', d, ds.id ? 'Project updated' : 'Project created').then(function (r) { closeModal(); if (!ds.id && r && r.id) go('project', r.id); else render(); }, function () { btn.disabled = false; });
+}
+function projectDelete(id) {
+  var p = P[id]; if (!p) return;
+  var T = S.tasks.filter(function (t) { return t.projectId === id; }), others = S.projects.filter(function (x) { return x.id !== id; });
+  var body = '<div class="dangerbox">You are about to delete <b>' + esc(p.name) + '</b> (' + esc(p.id) + '). It will disappear for everyone on the project. The row stays in the Projects tab and can be restored from Settings.</div>';
+  if (T.length) {
+    body += '<div class="warn"><b>This project has ' + T.length + ' task' + (T.length === 1 ? '' : 's') + '.</b> Nothing happens to them until you choose:</div>' +
+      '<div style="max-height:130px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-bottom:12px;font-size:13px">' + T.map(function (t) { return '<div>' + esc(t.id) + ' · ' + esc(t.title) + ' <span style="color:var(--muted)">(' + esc(t.status) + ')</span></div>'; }).join('') + '</div>' +
+      (others.length ? '<label class="radio"><input type="radio" name="taskAction" value="move"><span><b>Move the tasks to another project</b><select id="del-move" aria-label="Project to move tasks to" style="margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;max-width:100%">' + opts(others.map(function (x) { return [x.id, x.name + ' (' + x.id + ')']; })) + '</select></span></label>' : '') +
+      '<label class="radio"><input type="radio" name="taskAction" value="unlink"><span><b>Keep the tasks without a project</b><small>They stay assigned and visible under Tasks → No project.</small></span></label>' +
+      '<label class="radio"><input type="radio" name="taskAction" value="delete"><span><b>Delete the tasks with the project</b><small>Restoring the project brings them back.</small></span></label>';
+  }
+  body += '<div class="fld" style="margin-top:12px"><label for="del-confirm">Type the Project ID <code>' + esc(p.id) + '</code> to confirm</label><input id="del-confirm" autocomplete="off" placeholder="' + esc(p.id) + '"></div>';
+  modal('Delete project?', body, '<button class="btn" data-act="close">Cancel</button><button class="btn danger" id="del-go" data-act="project-del-go" data-id="' + esc(p.id) + '" data-tasks="' + T.length + '" disabled>Delete project</button>');
+}
+function delGate() {
+  var g = $('#del-go'); if (!g) return;
+  if (g.getAttribute('data-act') === 'task-del-go') { g.disabled = !$('#del-ok').checked; return; }
+  var okId = $('#del-confirm').value.trim() === g.getAttribute('data-id'), needs = Number(g.getAttribute('data-tasks')) > 0;
+  g.disabled = !(okId && (!needs || $('#modal input[name=taskAction]:checked')));
+}
+function empForm(u) {
+  var isNew = !u;
+  u = u || { email: '', name: '', role: 'Employee', status: 'Active', department: '', designation: '', manager: '', joiningDate: '', id: '' };
+  var body = '<div class="form">' + fld('Official email (login ID)', 'email', u.email, { req: true, readonly: !isNew, ph: 'name@suraasa.com', hint: isNew ? 'Password links are sent here. It cannot be changed later.' : 'The login ID cannot be changed.' }) +
+    fld('User ID', '_id', isNew ? 'Generated automatically' : (u.id || '—'), { readonly: true }) + fld('Full name', 'name', u.name, { req: true }) + fld('Role', 'role', u.role, { type: 'select', options: S.meta.roles }) +
+    fld('Department', 'department', u.department, { type: 'select', options: S.meta.departments, blank: 'None' }) + fld('Designation', 'designation', u.designation) +
+    fld('Manager', 'manager', u.manager, { type: 'select', options: S.users.filter(function (x) { return x.email !== u.email; }).map(function (x) { return [x.email, x.name]; }), blank: 'None' }) + fld('Joining date', 'joiningDate', u.joiningDate, { type: 'date' }) +
+    fld('Employee status', 'status', u.status, { type: 'select', options: S.meta.userStatuses, hint: 'Only Active people can sign in. Inactive ends their session at once.' }) +
+    (isNew ? '<div class="fld"><label>Login</label><label class="pick" style="padding:8px 0"><input type="checkbox" name="invite" checked> Email a password setup link now</label></div>' : '<div></div>') + '</div>';
+  modal(isNew ? 'Add Employee' : 'Edit Employee', body, '<button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="emp-save" data-new="' + (isNew ? '1' : '') + '" data-rid="' + rid() + '">' + (isNew ? 'Add employee' : 'Save changes') + '</button>');
+}
+function changePwForm() {
+  modal('Change password', '<div id="cp-err"></div>' + ['cp-cur|Current password|current-password', 'cp-new|New password|new-password', 'cp-new2|Type the new password again|new-password'].map(function (s) {
+    var p = s.split('|'); return '<div class="fld" style="margin-bottom:12px"><label for="' + p[0] + '">' + p[1] + '</label><input id="' + p[0] + '" type="password" autocomplete="' + p[2] + '"></div>';
+  }).join('') + '<div class="hint">At least ' + (S.meta.minPassword || 10) + ' characters, with a letter and a number. You will stay signed in here; other devices are signed out.</div>',
+    '<button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="change-pw-go">Change password</button>', 'narrow');
+}
+
+/* ---------- actions ---------- */
+var ACT = {
+  go: function (d) { var s = $('#side'); if (s) s.classList.remove('open'); go(d.view); },
+  menu: function () { $('#side').classList.toggle('open'); },
+  refresh: function (d, btn) { btn.disabled = true; refresh(true, false); },
+  close: closeModal,
+  overlay: function (d, el, ev) { if (ev.target === el) closeModal(); },
+  'show-forgot': showForgot, 'show-login': function () { showLogin(); },
+  'pw-toggle': function (d, btn) { var i = document.getElementById(d['for']); i.type = i.type === 'password' ? 'text' : 'password'; btn.textContent = i.type === 'password' ? 'Show' : 'Hide'; i.focus(); },
+  'sign-out': function () { call('auth.logout', {}).then(function () {}, function () {}); setToken(''); S.me = null; S.perf = []; showLogin('You have signed out.', true); },
+  'change-pw': changePwForm,
+  'change-pw-go': function (d, btn) {
+    var cur = $('#cp-cur').value, a = $('#cp-new').value, b = $('#cp-new2').value, err = function (m) { $('#cp-err').className = 'dangerbox'; $('#cp-err').setAttribute('role', 'alert'); $('#cp-err').textContent = m; };
+    if (!cur) return err('Enter your current password.');
+    if (a !== b) return err('The two new passwords do not match.');
+    btn.disabled = true;
+    call('auth.changePassword', { current: cur, password: a }).then(function (r) { setToken(r.token); closeModal(); toast('Password changed.'); }, function (e) { btn.disabled = false; if (e.code !== 'AUTH') err(e.error); });
+  },
+  project: function (d, el, ev) { ev.preventDefault(); closeModal(); S.f.ptab = 'all'; go('project', d.id); },
+  ptab: function (d) { S.f.ptab = d.tab; viewProject(); },
+  page: function (d) { S.f.tasks.page += Number(d.d); taskList(); },
+  'project-new': function () { projectForm(null); },
+  'project-edit': function (d) { projectForm(P[d.id]); },
+  'project-save': projectSave,
+  'project-del': function (d) { projectDelete(d.id); },
+  'project-del-go': function (d, btn) {
+    var a = $('#modal input[name=taskAction]:checked'), pay = { id: d.id, confirm: $('#del-confirm').value.trim() };
+    if (a) { pay.taskAction = a.value; if (a.value === 'move') pay.moveTo = $('#del-move').value; }
+    btn.disabled = true;
+    mutate('project.delete', pay, 'Project deleted').then(function () { closeModal(); go('projects'); }, function () { btn.disabled = false; });
+  },
+  'project-restore': function (d, btn) { btn.disabled = true; mutate('project.restore', { id: d.id }, 'Project restored').then(render, function () { btn.disabled = false; }); },
+  task: function (d) { taskDetail(d.id); },
+  'task-new': function (d) { taskForm(null, d.project || ''); },
+  'task-edit': function (d, btn) { btn.disabled = true; call('task.detail', { id: d.id }).then(function (r) { btn.disabled = false; taskForm(r.task); }, function (e) { btn.disabled = false; if (e.code !== 'AUTH') toast(e.error, true); }); },
+  'task-save': taskSave,
+  'task-del': function (d) { taskDelete(d.id); },
+  'task-del-go': function (d, btn) { btn.disabled = true; mutate('task.delete', { id: d.id, confirm: true }, 'Task deleted').then(function () { closeModal(); render(); }, function () { btn.disabled = false; }); },
+  'task-restore': function (d, btn) { btn.disabled = true; mutate('task.restore', { id: d.id }, 'Task restored').then(render, function () { btn.disabled = false; }); },
+  'task-progress': function (d, btn) {
+    var t = S.tasks.filter(function (x) { return x.id === d.id; })[0], pay = { id: d.id, comment: $('#up-cmt').value };
+    var st = $('#up-status').value, pg = Number($('#up-prog').value);
+    if (st !== t.status) pay.status = st;
+    if (pg !== t.progress) pay.progress = pg;
+    if (!pay.status && pay.progress == null && !pay.comment.trim()) return toast('Nothing to update yet.', true);
+    btn.disabled = true;
+    mutate('task.progress', pay, 'Update saved').then(function () { render(); taskDetail(d.id); }, function () { btn.disabled = false; });
+  },
+  'emp-new': function () { empForm(null); },
+  'emp-edit': function (d) { empForm(U[d.id]); },
+  'emp-save': function (d, btn) {
+    var f = readForm(); delete f._id; f.isNew = d['new'] === '1';
+    if (!f.email.trim() || !f.name.trim()) return toast('Email and name are required.', true);
+    if (f.isNew) f.requestId = d.rid;
+    btn.disabled = true;
+    mutate('user.save', f, f.isNew ? (f.invite ? 'Employee added and invited' : 'Employee added') : 'Employee updated').then(function () { closeModal(); render(); }, function () { btn.disabled = false; });
+  },
+  'acc-invite': function (d, btn) { btn.disabled = true; mutate('account.invite', { email: d.id }, 'Setup link emailed to ' + uname(d.id)).then(render, function () { btn.disabled = false; }); },
+  'acc-reset': function (d) {
+    modal('Reset password?', '<p style="margin:0 0 10px">This cancels the current password of <b>' + esc(uname(d.id)) + '</b>, signs them out everywhere and emails them a link to choose a new one.</p><p class="hint" style="margin:0">You will not see or set their password.</p>',
+      '<button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="acc-reset-go" data-id="' + esc(d.id) + '">Reset and email link</button>', 'narrow');
+  },
+  'acc-reset-go': function (d, btn) { btn.disabled = true; mutate('account.reset', { email: d.id }, 'Reset link emailed to ' + uname(d.id)).then(function () { closeModal(); render(); }, function () { btn.disabled = false; }); },
+  notif: function (d) {
+    var n = (S.notifs || []).filter(function (x) { return x.id === d.id; })[0]; if (!n) return;
+    var open = function () {
+      if (n.taskId && S.tasks.some(function (t) { return t.id === n.taskId; })) taskDetail(n.taskId);
+      else if (n.projectId && P[n.projectId]) go('project', n.projectId);
+    };
+    if (n.isRead) return open();
+    mutate('notifs.read', { id: n.id }).then(function () { render(); open(); }, function () {});
+  },
+  'notif-all': function (d, btn) { btn.disabled = true; mutate('notifs.read', { all: true }, 'All caught up').then(render, function () { btn.disabled = false; }); },
+  'settings-save': function (d, btn) {
+    btn.disabled = true;
+    mutate('settings.save', { emailNotifications: $('#set-mail').checked, departments: $('#set-depts').value, dailyReminder: $('#set-rem').checked, siteUrl: $('#set-site').value.trim() }, 'Settings saved').then(render, function () { btn.disabled = false; });
+  },
+  'perf-refresh': function () { $('#perf').innerHTML = perfHtml(); }
+};
+
+document.addEventListener('click', function (ev) {
+  var th = ev.target.closest ? ev.target.closest('th[data-sort]') : null;
+  if (th && $('#tlist') && $('#tlist').contains(th)) { var f = S.f.tasks, k = th.getAttribute('data-sort'); if (f.sort === k) f.dir = -f.dir; else { f.sort = k; f.dir = 1; } f.page = 1; taskList(); return; }
+  var el = ev.target.closest ? ev.target.closest('[data-act]') : null;
+  if (!el || el.disabled) return;
+  var inner = ev.target.closest('button,a,input,select,label');
+  if (inner && inner !== el && el.contains(inner) && !inner.hasAttribute('data-act')) return;
+  var fn = ACT[el.getAttribute('data-act')];
+  if (fn) fn(el.dataset, el, ev);
+});
+document.addEventListener('input', function (ev) {
+  var el = ev.target;
+  if (el.hasAttribute && el.hasAttribute('data-f')) { var k = el.getAttribute('data-f').split('.'); S.f[k[0]][k[1]] = el.value; LISTS[k[0]](); return; }
+  if (el.hasAttribute && el.hasAttribute('data-pickq')) { var q = el.value.toLowerCase(); $$('.pick', el.parentNode).forEach(function (l) { l.style.display = l.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none'; }); return; }
+  if (el.id === 'sp-pw' || el.id === 'sp-pw2') checkRules();
+  if (el.id === 'up-prog') { $('#up-val').textContent = el.value; var s = $('#up-status'); if (Number(el.value) === 100) s.value = 'Completed'; else if (s.value === 'Completed') s.value = 'In Progress'; else if (Number(el.value) > 0 && s.value === 'Pending') s.value = 'In Progress'; }
+  if (el.id === 'up-status' && el.value === 'Completed') { $('#up-prog').value = 100; $('#up-val').textContent = '100'; }
+  if (el.id === 'del-confirm' || el.id === 'del-ok' || el.name === 'taskAction') delGate();
+});
+document.addEventListener('change', function (ev) { if (ev.target.id === 'del-ok' || ev.target.name === 'taskAction' || ev.target.id === 'up-status') ev.target.dispatchEvent(new Event('input', { bubbles: true })); });
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape' && $('#modal').innerHTML) closeModal();
+  if (ev.key === 'Enter' && ev.target.classList && ev.target.classList.contains('pcard')) ev.target.click();
+});
+
+/* ---------- start ---------- */
+function boot() {
+  var tiles = ''; for (var i = 0; i < 8; i++) tiles += '<span class="sk tile"></span>';
+  $('#root').innerHTML = '<div class="app" aria-busy="true"><aside class="side"><div class="brand"><img src="' + LOGO + '" alt="" onerror="this.style.display=\'none\'"><div>' + WORD + '<b>Sales Control Tower</b></div></div><div class="nav">' + sk(7) + '</div></aside>' +
+    '<div class="main"><div class="top"><h1>Dashboard</h1></div><div class="content"><div class="grid kpis k8">' + tiles + '</div><div class="grid cols3 sec"><span class="sk block"></span><span class="sk block"></span><span class="sk block"></span></div></div></div></div>';
+  call('boot', {}).then(function (st) { setState(st); render(); }, function (e) {
+    setToken('');
+    if (e.code === 'SETUP') $('#root').innerHTML = authShell('<h1>Upgrade needed</h1><p class="sub">' + esc(e.error) + '</p>');
+    else showLogin(e.code === 'AUTH' ? '' : e.error);
+  });
+}
+function start() {
+  var next = function (code) {
+    if (code) {
+      $('#root').innerHTML = '<div class="loading"><span class="spin"></span>Checking your link…</div>';
+      call('auth.codeInfo', { token: code }).then(function (info) { setToken(''); showSetPassword(code, info); }, function (e) { cleanUrl(); showLogin(e.error); });
+    } else if (TOKEN) boot(); else showLogin();
+  };
+  try {
+    if (IN_GAS) google.script.url.getLocation(function (loc) { next(loc && loc.parameter ? loc.parameter.token : ''); });
+    else next(new URLSearchParams(location.search).get('token') || '');
+  } catch (e) { next(''); }
+  setInterval(syncLabel, 60000);
+  // Quietly pick up other people's changes when you come back to the tab after a while.
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && S.me && !$('#modal').innerHTML && busyN === 0 && Date.now() - S.syncedAt > 180000) refresh(false, true); });
+}
+start();
+})();
+</script>
+</body>
+</html>
